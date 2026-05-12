@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - CRM System{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto text-center py-12">
+    <div class="bg-white rounded-lg shadow-lg p-12">
+        <svg class="mx-auto h-24 w-24 text-primary mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        
+        <h1 class="text-3xl font-bold text-primary mb-4">
+            Bienvenido, {{ user.get_full_name }}
+        </h1>
+        
+        <p class="text-lg text-gray-600 mb-6">
+            Has iniciado sesión exitosamente como <strong>{{ user.get_role_display }}</strong>
+        </p>
+        
+        <div class="p-6 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-blue-800">
+                <strong>Dashboard en construcción</strong><br>
+                El panel de control con KPIs y gráficos será implementado en la tarea 14.
+            </p>
+        </div>
+        
+        <div class="mt-8 flex justify-center space-x-4">
+            <a href="{% url 'users:profile' %}" 
+               class="px-6 py-3 bg-primary text-white rounded-lg font-medium
+               hover:bg-opacity-90 transition-all duration-200">
+                Ver Mi Perfil
+            </a>
+            <a href="{% url 'users:logout' %}" 
+               class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
