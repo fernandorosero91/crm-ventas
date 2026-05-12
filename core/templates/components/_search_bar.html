@@ -1,0 +1,168 @@
+{% comment %}
+Reusable Search Bar Component with Autocomplete
+
+Usage:
+{% include 'components/_search_bar.html' with 
+    placeholder='Buscar clientes...'
+    name='search'
+    value=request.GET.search
+    autocomplete_url='/api/clientes/search/'
+    show_filters=True
+%}
+
+Parameters:
+- placeholder: Search input placeholder (default: 'Buscar...')
+- name: Input name attribute (default: 'search')
+- value: Current search value (optional)
+- autocomplete_url: URL for autocomplete suggestions (optional)
+- show_filters: Show advanced filters button (default: False)
+- filters_target: ID of filters container to toggle (optional)
+- classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% with 
+    placeholder=placeholder|default:'Buscar...'
+    name=name|default:'search'
+    show_filters=show_filters|default:False
+%}
+
+<div class="relative {{ classes }}">
+    <form method="get" action="" class="flex items-center gap-2">
+        <!-- Search Input Container -->
+        <div class="relative flex-1">
+            <!-- Search Icon -->
+            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            
+            <!-- Search Input -->
+            <input
+                type="text"
+                id="search-input"
+                name="{{ name }}"
+                {% if value %}value="{{ value }}"{% endif %}
+                placeholder="{{ placeholder }}"
+                autocomplete="off"
+                class="w-full pl-10 pr-10 py-2.5 text-gray-900 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                {% if autocomplete_url %}
+                oninput="searchAutocomplete(this.value, '{{ autocomplete_url }}')"
+                {% endif %}
+            />
+            
+            <!-- Clear Button -->
+            {% if value %}
+            <button
+                type="button"
+                onclick="document.getElementById('search-input').value = ''; this.closest('form').submit();"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            {% endif %}
+            
+            {% if autocomplete_url %}
+            <!-- Autocomplete Dropdown -->
+            <div 
+                id="autocomplete-dropdown" 
+                class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+            >
+                <!-- Autocomplete results will be inserted here -->
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Search Button -->
+        <button
+            type="submit"
+            class="px-6 py-2.5 text-white bg-[#1e3a5f] rounded-lg hover:bg-[#152d4a] transition-all duration-300 ease-in-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1e3a5f]"
+        >
+            Buscar
+        </button>
+        
+        {% if show_filters %}
+        <!-- Advanced Filters Button -->
+        <button
+            type="button"
+            onclick="toggleFilters('{{ filters_target|default:'advanced-filters' }}')"
+            class="px-4 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+            </svg>
+        </button>
+        {% endif %}
+        
+        <!-- Preserve other GET parameters -->
+        {% for key, value in request.GET.items %}
+            {% if key != name and key != 'page' %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+            {% endif %}
+        {% endfor %}
+    </form>
+</div>
+
+{% if autocomplete_url %}
+<script>
+let autocompleteTimeout;
+
+function searchAutocomplete(query, url) {
+    clearTimeout(autocompleteTimeout);
+    
+    const dropdown = document.getElementById('autocomplete-dropdown');
+    
+    if (query.length < 2) {
+        dropdown.classList.add('hidden');
+        return;
+    }
+    
+    autocompleteTimeout = setTimeout(() => {
+        fetch(`${url}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.results && data.results.length > 0) {
+                    dropdown.innerHTML = data.results.map(item => `
+                        <a href="${item.url}" class="block px-4 py-2 hover:bg-gray-100 transition-colors">
+                            <div class="font-medium text-gray-900">${item.title}</div>
+                            ${item.subtitle ? `<div class="text-sm text-gray-600">${item.subtitle}</div>` : ''}
+                        </a>
+                    `).join('');
+                    dropdown.classList.remove('hidden');
+                } else {
+                    dropdown.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">No se encontraron resultados</div>';
+                    dropdown.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                console.error('Autocomplete error:', error);
+                dropdown.classList.add('hidden');
+            });
+    }, 300);
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('autocomplete-dropdown');
+    const searchInput = document.getElementById('search-input');
+    if (dropdown && searchInput && !searchInput.contains(event.target) && !dropdown.contains(event.target)) {
+        dropdown.classList.add('hidden');
+    }
+});
+</script>
+{% endif %}
+
+{% if show_filters %}
+<script>
+function toggleFilters(targetId) {
+    const filtersContainer = document.getElementById(targetId);
+    if (filtersContainer) {
+        filtersContainer.classList.toggle('hidden');
+    }
+}
+</script>
+{% endif %}
+
+{% endwith %}

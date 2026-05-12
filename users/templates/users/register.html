@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registrar Usuario - CRM System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .floating-label {
+        position: relative;
+    }
+    
+    .floating-label input,
+    .floating-label select {
+        padding-top: 1.5rem;
+    }
+    
+    .floating-label label {
+        position: absolute;
+        left: 0.75rem;
+        top: 1rem;
+        transition: all 0.2s ease-out;
+        pointer-events: none;
+        color: #6b7280;
+    }
+    
+    .floating-label input:focus + label,
+    .floating-label input:not(:placeholder-shown) + label,
+    .floating-label select:focus + label,
+    .floating-label select:not([value=""]) + label {
+        top: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--color-azul-oscuro);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <!-- Page Header -->
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold text-primary">Registrar Nuevo Usuario</h1>
+        <p class="mt-2 text-gray-600">Complete el formulario para crear una nueva cuenta de usuario</p>
+    </div>
+
+    <!-- Registration Form Card -->
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <form method="post" action="{% url 'users:register' %}" class="space-y-6" id="registerForm">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Username -->
+                <div class="floating-label">
+                    <input 
+                        type="text" 
+                        name="username" 
+                        id="id_username"
+                        placeholder=" "
+                        required
+                        value="{{ form.username.value|default:'' }}"
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.username.errors %}border-red-500{% endif %}"
+                    >
+                    <label for="id_username">Nombre de usuario *</label>
+                    {% if form.username.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Email -->
+                <div class="floating-label">
+                    <input 
+                        type="email" 
+                        name="email" 
+                        id="id_email"
+                        placeholder=" "
+                        required
+                        value="{{ form.email.value|default:'' }}"
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.email.errors %}border-red-500{% endif %}"
+                    >
+                    <label for="id_email">Correo electrónico *</label>
+                    {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- First Name -->
+                <div class="floating-label">
+                    <input 
+                        type="text" 
+                        name="first_name" 
+                        id="id_first_name"
+                        placeholder=" "
+                        required
+                        value="{{ form.first_name.value|default:'' }}"
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.first_name.errors %}border-red-500{% endif %}"
+                    >
+                    <label for="id_first_name">Nombre *</label>
+                    {% if form.first_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Last Name -->
+                <div class="floating-label">
+                    <input 
+                        type="text" 
+                        name="last_name" 
+                        id="id_last_name"
+                        placeholder=" "
+                        required
+                        value="{{ form.last_name.value|default:'' }}"
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.last_name.errors %}border-red-500{% endif %}"
+                    >
+                    <label for="id_last_name">Apellido *</label>
+                    {% if form.last_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Role -->
+                <div class="floating-label">
+                    <select 
+                        name="role" 
+                        id="id_role"
+                        required
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.role.errors %}border-red-500{% endif %}"
+                    >
+                        <option value="">Seleccione un rol</option>
+                        {% for value, label in form.fields.role.choices %}
+                        <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="id_role">Rol *</label>
+                    {% if form.role.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.role.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="floating-label">
+                    <input 
+                        type="password" 
+                        name="password1" 
+                        id="id_password1"
+                        placeholder=" "
+                        required
+                        minlength="8"
+                        maxlength="128"
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.password1.errors %}border-red-500{% endif %}"
+                    >
+                    <label for="id_password1">Contraseña (mínimo 8 caracteres) *</label>
+                    {% if form.password1.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="floating-label">
+                    <input 
+                        type="password" 
+                        name="password2" 
+                        id="id_password2"
+                        placeholder=" "
+                        required
+                        minlength="8"
+                        maxlength="128"
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
+                        {% if form.password2.errors %}border-red-500{% endif %}"
+                    >
+                    <label for="id_password2">Confirmar contraseña *</label>
+                    {% if form.password2.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                {% for error in form.non_field_errors %}
+                <p class="text-sm text-red-800">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end space-x-4 pt-4 border-t">
+                <a href="{% url 'users:user_list' %}" 
+                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                    Cancelar
+                </a>
+                <button 
+                    type="submit" 
+                    class="px-6 py-2 bg-primary text-white rounded-lg font-medium
+                    hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+                    transition-all duration-300 ease-in-out active:scale-95"
+                    id="submitBtn"
+                >
+                    <span id="btnText">Registrar Usuario</span>
+                    <span id="btnLoading" class="hidden">
+                        <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/form_validation.js' %}"></script>
+<script>
+    // Show loading spinner on form submit
+    document.getElementById('registerForm')?.addEventListener('submit', function() {
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnLoading = document.getElementById('btnLoading');
+        
+        btn.disabled = true;
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+    });
+    
+    // Real-time password match validation
+    const password1 = document.getElementById('id_password1');
+    const password2 = document.getElementById('id_password2');
+    
+    password2?.addEventListener('blur', function() {
+        if (password1.value && password2.value && password1.value !== password2.value) {
+            password2.classList.add('border-red-500');
+            const errorMsg = password2.parentElement.querySelector('.text-red-600');
+            if (!errorMsg) {
+                const p = document.createElement('p');
+                p.className = 'mt-1 text-sm text-red-600';
+                p.textContent = 'Las contraseñas no coinciden';
+                password2.parentElement.appendChild(p);
+            }
+        } else {
+            password2.classList.remove('border-red-500');
+            const errorMsg = password2.parentElement.querySelector('.text-red-600');
+            if (errorMsg && errorMsg.textContent === 'Las contraseñas no coinciden') {
+                errorMsg.remove();
+            }
+        }
+    });
+</script>
+{% endblock %}

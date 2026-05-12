@@ -1,0 +1,98 @@
+{% comment %}
+Reusable Card Component
+
+Usage:
+{% include 'components/_card.html' with 
+    header_title='Card Title'
+    header_actions='<button>...</button>'
+    body_content='Card body content'
+    footer_content='Card footer content'
+    hover=True
+    classes='extra-classes'
+%}
+
+Parameters:
+- header_title: Card header title (optional)
+- header_actions: HTML for header action buttons (optional)
+- body_content: Card body content (optional, can use block instead)
+- footer_content: Card footer content (optional)
+- hover: Enable hover effect (default: True)
+- classes: Additional CSS classes (optional)
+- padding: sm|md|lg (default: md)
+{% endcomment %}
+
+{% with 
+    hover=hover|default:True
+    padding=padding|default:'md'
+%}
+
+<div class="
+    bg-white rounded-lg shadow-md
+    {% if hover %}
+        hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200
+    {% endif %}
+    {{ classes }}
+">
+    {% if header_title or header_actions %}
+    <!-- Card Header -->
+    <div class="
+        border-b border-gray-200
+        {% if padding == 'sm' %}
+            px-4 py-3
+        {% elif padding == 'lg' %}
+            px-8 py-6
+        {% else %}
+            px-6 py-4
+        {% endif %}
+    ">
+        <div class="flex items-center justify-between">
+            {% if header_title %}
+            <h3 class="text-lg font-semibold text-gray-900">{{ header_title }}</h3>
+            {% endif %}
+            
+            {% if header_actions %}
+            <div class="flex items-center space-x-2">
+                {{ header_actions|safe }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Card Body -->
+    <div class="
+        {% if padding == 'sm' %}
+            px-4 py-3
+        {% elif padding == 'lg' %}
+            px-8 py-6
+        {% else %}
+            px-6 py-4
+        {% endif %}
+    ">
+        {% if body_content %}
+            {{ body_content|safe }}
+        {% else %}
+            {% block card_body %}
+            <!-- Card body content goes here -->
+            {% endblock %}
+        {% endif %}
+    </div>
+    
+    {% if footer_content %}
+    <!-- Card Footer -->
+    <div class="
+        border-t border-gray-200 bg-gray-50 rounded-b-lg
+        {% if padding == 'sm' %}
+            px-4 py-3
+        {% elif padding == 'lg' %}
+            px-8 py-6
+        {% else %}
+            px-6 py-4
+        {% endif %}
+    ">
+        {{ footer_content|safe }}
+    </div>
+    {% endif %}
+</div>
+
+{% endwith %}

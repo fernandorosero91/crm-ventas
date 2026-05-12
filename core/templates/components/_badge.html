@@ -1,0 +1,74 @@
+{% comment %}
+Reusable Badge Component
+
+Usage:
+{% include 'components/_badge.html' with 
+    text='Active'
+    type='success'
+    size='md'
+%}
+
+Parameters:
+- text: Badge text (required)
+- type: success|error|warning|info|primary|secondary|gray (default: gray)
+- size: sm|md|lg (default: md)
+- rounded: Boolean for pill shape (default: True)
+- classes: Additional CSS classes (optional)
+
+Special types for CRM:
+- active: Green badge for active status
+- inactive: Red badge for inactive status
+- prospeccion: Blue badge for Prospección stage
+- calificacion: Indigo badge for Calificación stage
+- propuesta: Purple badge for Propuesta stage
+- negociacion: Yellow badge for Negociación stage
+- cierre_ganado: Green badge for Cierre Ganado stage
+- cierre_perdido: Red badge for Cierre Perdido stage
+{% endcomment %}
+
+{% with 
+    type=type|default:'gray'
+    size=size|default:'md'
+    rounded=rounded|default:True
+%}
+
+<span class="
+    inline-flex items-center font-medium
+    {% if rounded %}rounded-full{% else %}rounded{% endif %}
+    
+    {# Size variants #}
+    {% if size == 'sm' %}
+        px-2 py-0.5 text-xs
+    {% elif size == 'lg' %}
+        px-4 py-1.5 text-base
+    {% else %}
+        px-3 py-1 text-sm
+    {% endif %}
+    
+    {# Color variants #}
+    {% if type == 'success' or type == 'active' or type == 'cierre_ganado' %}
+        bg-green-100 text-green-800
+    {% elif type == 'error' or type == 'inactive' or type == 'cierre_perdido' %}
+        bg-red-100 text-red-800
+    {% elif type == 'warning' or type == 'negociacion' %}
+        bg-yellow-100 text-yellow-800
+    {% elif type == 'info' or type == 'prospeccion' %}
+        bg-blue-100 text-blue-800
+    {% elif type == 'primary' %}
+        bg-[#1e3a5f] text-white
+    {% elif type == 'secondary' %}
+        bg-[#2c6e8a] text-white
+    {% elif type == 'calificacion' %}
+        bg-indigo-100 text-indigo-800
+    {% elif type == 'propuesta' %}
+        bg-pink-100 text-pink-800
+    {% else %}
+        bg-gray-100 text-gray-800
+    {% endif %}
+    
+    {{ classes }}
+">
+    {{ text }}
+</span>
+
+{% endwith %}
