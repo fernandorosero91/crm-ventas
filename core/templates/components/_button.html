@@ -1,0 +1,96 @@
+{% comment %}
+Reusable Button Component
+
+Usage:
+{% include 'components/_button.html' with 
+    text='Click Me' 
+    variant='primary' 
+    type='button' 
+    size='md'
+    disabled=False
+    loading=False
+    icon='<svg>...</svg>'
+    classes='extra-classes'
+%}
+
+Parameters:
+- text: Button text (required)
+- variant: primary|secondary|danger|ghost (default: primary)
+- type: button|submit|reset (default: button)
+- size: sm|md|lg (default: md)
+- disabled: Boolean (default: False)
+- loading: Boolean (default: False)
+- icon: SVG icon HTML (optional)
+- classes: Additional CSS classes (optional)
+- id: Button ID (optional)
+- onclick: JavaScript onclick handler (optional)
+{% endcomment %}
+
+{% with 
+    variant=variant|default:'primary'
+    type=type|default:'button'
+    size=size|default:'md'
+    disabled=disabled|default:False
+    loading=loading|default:False
+%}
+
+<button 
+    type="{{ type }}"
+    {% if id %}id="{{ id }}"{% endif %}
+    {% if onclick %}onclick="{{ onclick }}"{% endif %}
+    {% if disabled or loading %}disabled{% endif %}
+    class="
+        inline-flex items-center justify-center
+        font-medium rounded-lg
+        transition-all duration-300 ease-in-out
+        active:scale-95 transition-transform duration-100
+        focus:outline-none focus:ring-2 focus:ring-offset-2
+        disabled:opacity-50 disabled:cursor-not-allowed
+        
+        {# Size variants #}
+        {% if size == 'sm' %}
+            px-3 py-1.5 text-sm
+        {% elif size == 'lg' %}
+            px-6 py-3 text-lg
+        {% else %}
+            px-4 py-2 text-base
+        {% endif %}
+        
+        {# Color variants #}
+        {% if variant == 'primary' %}
+            bg-[#1e3a5f] text-white
+            hover:bg-[#152d4a] hover:shadow-lg
+            focus:ring-[#1e3a5f]
+        {% elif variant == 'secondary' %}
+            bg-[#2c6e8a] text-white
+            hover:bg-[#235670] hover:shadow-lg
+            focus:ring-[#2c6e8a]
+        {% elif variant == 'danger' %}
+            bg-red-600 text-white
+            hover:bg-red-700 hover:shadow-lg
+            focus:ring-red-500
+        {% elif variant == 'ghost' %}
+            bg-transparent text-gray-700 border border-gray-300
+            hover:bg-gray-100 hover:border-gray-400
+            focus:ring-gray-400
+        {% endif %}
+        
+        {{ classes }}
+    "
+>
+    {% if loading %}
+        <!-- Loading Spinner -->
+        <svg class="animate-spin -ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        Cargando...
+    {% else %}
+        {% if icon %}
+            <span class="mr-2">{{ icon|safe }}</span>
+        {% endif %}
+        {{ text }}
+    {% endif %}
+</button>
+
+{% endwith %}

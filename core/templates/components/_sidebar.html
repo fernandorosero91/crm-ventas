@@ -1,0 +1,233 @@
+{% comment %}
+Reusable Sidebar Component with Responsive Behavior
+
+Usage:
+{% include 'components/_sidebar.html' with 
+    menu_items=menu_items
+    user=request.user
+    collapsed=False
+%}
+
+Parameters:
+- menu_items: List of menu item dicts with 'label', 'url', 'icon', 'roles' keys
+  Example: [
+    {'label': 'Dashboard', 'url': '/dashboard/', 'icon': '<svg>...</svg>', 'roles': ['administrator', 'vendedor', 'supervisor']},
+    {'label': 'Clientes', 'url': '/clientes/', 'icon': '<svg>...</svg>', 'roles': ['administrator', 'vendedor', 'supervisor']},
+  ]
+- user: Current user object (required for role-based filtering)
+- collapsed: Initial collapsed state (default: False)
+- classes: Additional CSS classes (optional)
+
+Responsive Behavior:
+- Mobile (320-767px): Hidden by default, toggle with hamburger menu
+- Tablet (768-1023px): Collapsed (icons only)
+- Desktop (1024-1919px): Fully expanded
+- Large (1920px+): Fully expanded
+{% endcomment %}
+
+{% with 
+    collapsed=collapsed|default:False
+%}
+
+<!-- Sidebar Container -->
+<aside 
+    id="sidebar"
+    class="
+        sidebar bg-white border-r border-gray-200 
+        transition-[width] duration-300 ease-in-out
+        fixed lg:static inset-y-0 left-0 z-40
+        {% if collapsed %}
+            w-16
+        {% else %}
+            w-64
+        {% endif %}
+        
+        {# Mobile: hidden by default #}
+        hidden lg:block
+        
+        {{ classes }}
+    "
+>
+    <!-- Sidebar Header -->
+    <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+        <div class="flex items-center space-x-3 overflow-hidden">
+            <!-- Logo/Icon -->
+            <div class="flex-shrink-0">
+                <svg class="w-8 h-8 text-[#1e3a5f]" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
+                </svg>
+            </div>
+            
+            <!-- Brand Text -->
+            <span class="sidebar-text font-bold text-lg text-gray-900 whitespace-nowrap">
+                CRM System
+            </span>
+        </div>
+        
+        <!-- Toggle Button (Desktop/Tablet) -->
+        <button 
+            id="sidebar-toggle"
+            onclick="toggleSidebar()"
+            class="hidden lg:block p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+    
+    <!-- Navigation Menu -->
+    <nav class="flex-1 overflow-y-auto py-4">
+        <ul class="space-y-1 px-2">
+            {% for item in menu_items %}
+                {% if not item.roles or user.role in item.roles %}
+                <li>
+                    <a 
+                        href="{{ item.url }}"
+                        class="
+                            flex items-center px-3 py-2.5 text-gray-700 rounded-lg
+                            hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200
+                            {% if request.path == item.url %}
+                                bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white
+                            {% endif %}
+                        "
+                        title="{{ item.label }}"
+                    >
+                        <!-- Icon -->
+                        <span class="flex-shrink-0 w-6 h-6">
+                            {{ item.icon|safe }}
+                        </span>
+                        
+                        <!-- Label -->
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">
+                            {{ item.label }}
+                        </span>
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    
+    <!-- Sidebar Footer -->
+    <div class="border-t border-gray-200 p-4">
+        <div class="flex items-center space-x-3 overflow-hidden">
+            <!-- User Avatar -->
+            <div class="flex-shrink-0">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="w-10 h-10 rounded-full">
+                {% else %}
+                <div class="w-10 h-10 rounded-full bg-[#1e3a5f] flex items-center justify-center text-white font-medium">
+                    {{ user.first_name.0|default:user.username.0|upper }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- User Info -->
+            <div class="sidebar-text flex-1 overflow-hidden">
+                <p class="text-sm font-medium text-gray-900 truncate">
+                    {{ user.get_full_name|default:user.username }}
+                </p>
+                <p class="text-xs text-gray-500 truncate">
+                    {{ user.get_role_display }}
+                </p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Mobile Overlay -->
+<div 
+    id="sidebar-overlay"
+    class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-30 lg:hidden"
+    onclick="closeMobileSidebar()"
+></div>
+
+<!-- Sidebar JavaScript -->
+<script>
+// Toggle sidebar collapse/expand (Desktop/Tablet)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
+    
+    if (sidebar.classList.contains('w-64')) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-16');
+        sidebarTexts.forEach(text => text.classList.add('hidden'));
+    } else {
+        sidebar.classList.remove('w-16');
+        sidebar.classList.add('w-64');
+        sidebarTexts.forEach(text => text.classList.remove('hidden'));
+    }
+    
+    // Save state to localStorage
+    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('w-16'));
+}
+
+// Open mobile sidebar
+function openMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.remove('hidden');
+    overlay.classList.remove('hidden');
+}
+
+// Close mobile sidebar
+function closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    sidebar.classList.add('hidden');
+    overlay.classList.add('hidden');
+}
+
+// Initialize sidebar state from localStorage
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    
+    // Only apply saved state on desktop/tablet
+    if (window.innerWidth >= 1024 && isCollapsed) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-16');
+        sidebarTexts.forEach(text => text.classList.add('hidden'));
+    }
+    
+    // Auto-collapse on tablet
+    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-16');
+        sidebarTexts.forEach(text => text.classList.add('hidden'));
+    }
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
+    
+    // Auto-collapse on tablet
+    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
+        sidebar.classList.remove('w-64');
+        sidebar.classList.add('w-16');
+        sidebarTexts.forEach(text => text.classList.add('hidden'));
+    }
+    
+    // Auto-expand on desktop if not manually collapsed
+    if (window.innerWidth >= 1024 && localStorage.getItem('sidebarCollapsed') !== 'true') {
+        sidebar.classList.remove('w-16');
+        sidebar.classList.add('w-64');
+        sidebarTexts.forEach(text => text.classList.remove('hidden'));
+    }
+});
+
+// Connect to mobile menu toggle button
+const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+if (mobileMenuToggle) {
+    mobileMenuToggle.addEventListener('click', openMobileSidebar);
+}
+</script>
+
+{% endwith %}

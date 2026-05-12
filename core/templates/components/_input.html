@@ -1,0 +1,159 @@
+{% comment %}
+Reusable Input Component with Floating Labels
+
+Usage:
+{% include 'components/_input.html' with 
+    name='email'
+    label='Correo Electrónico'
+    type='email'
+    value=form.email.value
+    required=True
+    error=form.email.errors
+%}
+
+Parameters:
+- name: Input name attribute (required)
+- label: Floating label text (required)
+- type: text|email|password|number|date|tel|url (default: text)
+- value: Input value (optional)
+- placeholder: Placeholder text (optional)
+- required: Boolean (default: False)
+- disabled: Boolean (default: False)
+- readonly: Boolean (default: False)
+- error: Error message or list of errors (optional)
+- success: Success message (optional)
+- help_text: Help text below input (optional)
+- autocomplete: Autocomplete attribute (optional)
+- pattern: Validation pattern (optional)
+- min: Min value for number/date (optional)
+- max: Max value for number/date (optional)
+- maxlength: Max length for text (optional)
+- classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% with 
+    type=type|default:'text'
+    required=required|default:False
+    disabled=disabled|default:False
+    readonly=readonly|default:False
+    has_error=error|default:False
+    has_success=success|default:False
+%}
+
+<div class="relative {{ classes }}">
+    <!-- Input Field -->
+    {% if type == 'textarea' %}
+    <textarea
+        id="id_{{ name }}"
+        name="{{ name }}"
+        rows="{{ rows|default:4 }}"
+        {% if required %}required{% endif %}
+        {% if disabled %}disabled{% endif %}
+        {% if readonly %}readonly{% endif %}
+        {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+        {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+        class="
+            peer w-full px-4 pt-6 pb-2 text-gray-900 bg-white border rounded-lg
+            focus:outline-none focus:ring-2 transition-all duration-200
+            disabled:bg-gray-100 disabled:cursor-not-allowed
+            {% if has_error %}
+                border-red-500 focus:ring-red-500 focus:border-red-500
+            {% elif has_success %}
+                border-green-500 focus:ring-green-500 focus:border-green-500
+            {% else %}
+                border-gray-300 focus:ring-blue-500 focus:border-blue-500
+            {% endif %}
+        "
+    >{{ value|default:'' }}</textarea>
+    {% else %}
+    <input
+        type="{{ type }}"
+        id="id_{{ name }}"
+        name="{{ name }}"
+        {% if value %}value="{{ value }}"{% endif %}
+        {% if required %}required{% endif %}
+        {% if disabled %}disabled{% endif %}
+        {% if readonly %}readonly{% endif %}
+        {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+        {% if pattern %}pattern="{{ pattern }}"{% endif %}
+        {% if min %}min="{{ min }}"{% endif %}
+        {% if max %}max="{{ max }}"{% endif %}
+        {% if maxlength %}maxlength="{{ maxlength }}"{% endif %}
+        {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+        class="
+            peer w-full px-4 pt-6 pb-2 text-gray-900 bg-white border rounded-lg
+            focus:outline-none focus:ring-2 transition-all duration-200
+            disabled:bg-gray-100 disabled:cursor-not-allowed
+            {% if has_error %}
+                border-red-500 focus:ring-red-500 focus:border-red-500
+            {% elif has_success %}
+                border-green-500 focus:ring-green-500 focus:border-green-500
+            {% else %}
+                border-gray-300 focus:ring-blue-500 focus:border-blue-500
+            {% endif %}
+        "
+    />
+    {% endif %}
+    
+    <!-- Floating Label -->
+    <label 
+        for="id_{{ name }}"
+        class="
+            absolute left-4 top-2 text-xs font-medium transition-all duration-200
+            peer-placeholder-shown:text-base peer-placeholder-shown:top-4
+            peer-focus:top-2 peer-focus:text-xs
+            pointer-events-none
+            {% if has_error %}
+                text-red-600 peer-focus:text-red-600
+            {% elif has_success %}
+                text-green-600 peer-focus:text-green-600
+            {% else %}
+                text-gray-600 peer-focus:text-blue-600
+            {% endif %}
+        "
+    >
+        {{ label }}{% if required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+    </label>
+    
+    <!-- Validation Icons -->
+    {% if has_error or has_success %}
+    <div class="absolute right-3 top-1/2 transform -translate-y-1/2">
+        {% if has_error %}
+        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        {% elif has_success %}
+        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Error Message -->
+    {% if has_error %}
+    <div class="mt-1 text-sm text-red-600">
+        {% if error.0 %}
+            {{ error.0 }}
+        {% else %}
+            {{ error }}
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <!-- Success Message -->
+    {% if has_success %}
+    <div class="mt-1 text-sm text-green-600">
+        {{ success }}
+    </div>
+    {% endif %}
+    
+    <!-- Help Text -->
+    {% if help_text and not has_error %}
+    <div class="mt-1 text-sm text-gray-500">
+        {{ help_text }}
+    </div>
+    {% endif %}
+</div>
+
+{% endwith %}
