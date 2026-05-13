@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Pipeline de Ventas{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-[#1e3a5f] mb-2">Pipeline de Ventas</h1>
+            <p class="text-gray-600">Vista visual del embudo de ventas por etapas</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-3">
+            <a href="{% url 'ventas:opportunity_list' %}" 
+               class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                </svg>
+                Vista Lista
+            </a>
+            <a href="{% url 'ventas:opportunity_create' %}" 
+               class="inline-flex items-center px-4 py-2 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#152d4a] transition-colors duration-200">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Nueva Oportunidad
+            </a>
+        </div>
+    </div>
+
+    <!-- Pipeline Summary -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <p class="text-sm font-medium text-gray-500 mb-1">Total Oportunidades</p>
+                <p class="text-3xl font-bold text-[#1e3a5f]">{{ pipeline_summary.total_count }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm font-medium text-gray-500 mb-1">Valor Total Estimado</p>
+                <p class="text-3xl font-bold text-[#2c6e8a]">${{ pipeline_summary.total_estimated_value|floatformat:0 }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-sm font-medium text-gray-500 mb-1">Valor Ponderado Total</p>
+                <p class="text-3xl font-bold text-[#10b981]">${{ pipeline_summary.total_weighted_value|floatformat:0 }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pipeline Stages -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {% for stage in stages_with_opportunities %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full">
+            <!-- Stage Header -->
+            <div class="p-4 
+                {% if stage.name == 'prospeccion' %}bg-gray-100
+                {% elif stage.name == 'calificacion' %}bg-blue-100
+                {% elif stage.name == 'propuesta' %}bg-yellow-100
+                {% elif stage.name == 'negociacion' %}bg-orange-100
+                {% elif stage.name == 'cierre_ganado' %}bg-green-100
+                {% elif stage.name == 'cierre_perdido' %}bg-red-100
+                {% endif %}">
+                <h3 class="font-bold text-gray-800 mb-1">{{ stage.display_name }}</h3>
+                <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-600">{{ stage.count }} oportunidades</span>
+                </div>
+                <div class="mt-2 text-xs text-gray-600">
+                    <div>Total: ${{ stage.total_value|floatformat:0 }}</div>
+                    <div class="font-semibold text-[#10b981]">Ponderado: ${{ stage.weighted_value|floatformat:0 }}</div>
+                </div>
+            </div>
+
+            <!-- Opportunities List -->
+            <div class="flex-1 p-3 space-y-2 overflow-y-auto max-h-96">
+                {% if stage.opportunities %}
+                    {% for opportunity in stage.opportunities %}
+                    <a href="{% url 'ventas:opportunity_detail' opportunity.pk %}" 
+                       class="block bg-gray-50 rounded-lg p-3 hover:bg-gray-100 hover:shadow-md transition-all duration-200">
+                        <div class="font-semibold text-sm text-gray-900 mb-1 truncate">
+                            {{ opportunity.title }}
+                        </div>
+                        <div class="text-xs text-gray-600 mb-1 truncate">
+                            {{ opportunity.client.company_name }}
+                        </div>
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-[#2c6e8a]">
+                                ${{ opportunity.estimated_value|floatformat:0 }}
+                            </span>
+                            <span class="text-gray-500">
+                                {{ opportunity.probability }}%
+                            </span>
+                        </div>
+                        <div class="text-xs text-gray-500 mt-1">
+                            Cierre: {{ opportunity.expected_close_date|date:"d/m/Y" }}
+                        </div>
+                        {% if opportunity.assigned_vendedor %}
+                        <div class="text-xs text-gray-500 mt-1 truncate">
+                            {{ opportunity.assigned_vendedor.get_full_name }}
+                        </div>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-8 text-gray-400 text-sm">
+                        <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                        </svg>
+                        Sin oportunidades
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Legend -->
+    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-bold text-[#1e3a5f] mb-4">Leyenda del Pipeline</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+            <div>
+                <span class="inline-block w-4 h-4 bg-gray-100 rounded mr-2"></span>
+                <strong>Prospección:</strong> Identificación inicial de oportunidades
+            </div>
+            <div>
+                <span class="inline-block w-4 h-4 bg-blue-100 rounded mr-2"></span>
+                <strong>Calificación:</strong> Evaluación de viabilidad y ajuste
+            </div>
+            <div>
+                <span class="inline-block w-4 h-4 bg-yellow-100 rounded mr-2"></span>
+                <strong>Propuesta:</strong> Presentación de solución y cotización
+            </div>
+            <div>
+                <span class="inline-block w-4 h-4 bg-orange-100 rounded mr-2"></span>
+                <strong>Negociación:</strong> Discusión de términos y condiciones
+            </div>
+            <div>
+                <span class="inline-block w-4 h-4 bg-green-100 rounded mr-2"></span>
+                <strong>Cierre Ganado:</strong> Oportunidad convertida en venta
+            </div>
+            <div>
+                <span class="inline-block w-4 h-4 bg-red-100 rounded mr-2"></span>
+                <strong>Cierre Perdido:</strong> Oportunidad no concretada
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-blue-700">
+                    <strong>Consejo:</strong> Haz clic en cualquier oportunidad para ver sus detalles y cambiar su etapa. 
+                    El valor ponderado se calcula automáticamente como: Valor Estimado × Probabilidad / 100
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

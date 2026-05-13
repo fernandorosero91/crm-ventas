@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar Seguimiento{% else %}Nuevo Seguimiento{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-[#1e3a5f] mb-2">
+            {% if form.instance.pk %}
+                Editar Seguimiento
+            {% else %}
+                Nuevo Seguimiento
+            {% endif %}
+        </h1>
+        <p class="text-gray-600">
+            {% if form.instance.pk %}
+                Actualiza la información del seguimiento
+            {% else %}
+                Registra un nuevo seguimiento de cliente u oportunidad
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <form method="post" id="followupForm" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Display non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        {% for error in form.non_field_errors %}
+                        <p class="text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Info Alert -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            El seguimiento debe estar asociado al menos con un cliente o una oportunidad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Opportunity Field -->
+            <div>
+                <label for="{{ form.opportunity.id_for_label }}" 
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Oportunidad (opcional)
+                </label>
+                {{ form.opportunity }}
+                {% if form.opportunity.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.opportunity.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Selecciona la oportunidad relacionada con este seguimiento</p>
+            </div>
+
+            <!-- Client Field -->
+            <div>
+                <label for="{{ form.client.id_for_label }}" 
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Cliente (opcional)
+                </label>
+                {{ form.client }}
+                {% if form.client.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.client.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Selecciona el cliente relacionado con este seguimiento</p>
+            </div>
+
+            <!-- Follow-up Type and Date -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Follow-up Type -->
+                <div>
+                    <label for="{{ form.follow_up_type.id_for_label }}" 
+                           class="block text-sm font-medium text-gray-700 mb-2">
+                        Tipo de Seguimiento *
+                    </label>
+                    {{ form.follow_up_type }}
+                    {% if form.follow_up_type.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.follow_up_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Date -->
+                <div class="relative">
+                    {{ form.date }}
+                    <label for="{{ form.date.id_for_label }}" 
+                           class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                        Fecha y Hora *
+                    </label>
+                    {% if form.date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notes Field -->
+            <div class="relative">
+                {{ form.notes }}
+                <label for="{{ form.notes.id_for_label }}" 
+                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                    Notas *
+                </label>
+                {% if form.notes.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Mínimo 10 caracteres</p>
+            </div>
+
+            <!-- Next Action Date -->
+            <div class="relative">
+                {{ form.next_action_date }}
+                <label for="{{ form.next_action_date.id_for_label }}" 
+                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                    Fecha de Próxima Acción (opcional)
+                </label>
+                {% if form.next_action_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.next_action_date.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Fecha para la próxima acción de seguimiento</p>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+                <a href="javascript:history.back()" 
+                   class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#152d4a] transition-colors duration-200 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    {% if form.instance.pk %}Actualizar{% else %}Registrar{% endif %} Seguimiento
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Real-time Validation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('followupForm');
+    const notesInput = document.getElementById('{{ form.notes.id_for_label }}');
+    const nextActionDateInput = document.getElementById('{{ form.next_action_date.id_for_label }}');
+    const opportunitySelect = document.getElementById('{{ form.opportunity.id_for_label }}');
+    const clientSelect = document.getElementById('{{ form.client.id_for_label }}');
+
+    // Validate notes length
+    if (notesInput) {
+        notesInput.addEventListener('blur', function() {
+            const value = this.value.trim();
+            const errorElement = this.parentElement.querySelector('.text-red-600');
+            
+            if (errorElement && !errorElement.textContent.includes('Mínimo')) {
+                errorElement.remove();
+            }
+            
+            if (value.length < 10) {
+                const error = document.createElement('p');
+                error.className = 'mt-1 text-sm text-red-600';
+                error.textContent = 'Las notas deben tener al menos 10 caracteres';
+                this.parentElement.appendChild(error);
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+
+    // Validate next action date
+    if (nextActionDateInput) {
+        nextActionDateInput.addEventListener('blur', function() {
+            if (!this.value) return; // Optional field
+            
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const errorElement = this.parentElement.querySelector('.text-red-600');
+            
+            if (errorElement && !errorElement.textContent.includes('Fecha para')) {
+                errorElement.remove();
+            }
+            
+            if (selectedDate < today) {
+                const error = document.createElement('p');
+                error.className = 'mt-1 text-sm text-red-600';
+                error.textContent = 'La fecha de próxima acción debe ser hoy o una fecha futura';
+                this.parentElement.appendChild(error);
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+
+    // Auto-populate client when opportunity is selected
+    if (opportunitySelect && clientSelect) {
+        opportunitySelect.addEventListener('change', function() {
+            if (this.value) {
+                // In a real implementation, you would fetch the client via AJAX
+                // For now, we just ensure at least one is selected
+            }
+        });
+    }
+
+    // Form submit validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check that at least one entity is selected
+        const opportunityValue = opportunitySelect ? opportunitySelect.value : '';
+        const clientValue = clientSelect ? clientSelect.value : '';
+        
+        if (!opportunityValue && !clientValue) {
+            e.preventDefault();
+            alert('Debe seleccionar al menos un cliente o una oportunidad');
+            isValid = false;
+        }
+        
+        // Check notes length
+        if (notesInput && notesInput.value.trim().length < 10) {
+            e.preventDefault();
+            alert('Las notas deben tener al menos 10 caracteres');
+            isValid = false;
+        }
+        
+        // Check all required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor complete todos los campos requeridos correctamente');
+        }
+    });
+});
+</script>
+{% endblock %}
