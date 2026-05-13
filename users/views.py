@@ -33,7 +33,7 @@ class CustomLoginView(DjangoLoginView):
         """Redirect to role-appropriate dashboard."""
         user = self.request.user
         
-        if user.role == 'administrator':
+        if user.is_superuser or user.role == 'administrator':
             return reverse_lazy('dashboard:admin_dashboard')
         elif user.role == 'supervisor':
             return reverse_lazy('dashboard:supervisor_dashboard')

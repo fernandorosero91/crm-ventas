@@ -130,7 +130,50 @@
                 
                 <div class="flex items-center space-x-4">
                     {% block user_menu %}
-                    <!-- User menu will be inserted here -->
+                    {% if user.is_authenticated %}
+                    <!-- User dropdown -->
+                    <div class="relative" id="user-menu-container">
+                      <button onclick="document.getElementById('user-dropdown').classList.toggle('hidden')"
+                              class="flex items-center space-x-2 p-2 text-white hover:bg-white/10 rounded-lg transition-colors focus:outline-none">
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-medium">
+                          {{ user.first_name.0|default:user.username.0|upper }}
+                        </div>
+                        <span class="hidden md:inline text-sm">{{ user.get_full_name|default:user.username }}</span>
+                        <svg class="w-4 h-4 hidden md:inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                      </button>
+                      <!-- Dropdown -->
+                      <div id="user-dropdown"
+                           class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50 overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-100">
+                          <p class="text-sm font-medium text-gray-900 truncate">{{ user.get_full_name|default:user.username }}</p>
+                          <p class="text-xs text-gray-500">{{ user.get_role_display }}</p>
+                        </div>
+                        <a href="/users/profile/"
+                           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                          <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                            Mi Perfil
+                          </span>
+                        </a>
+                        <form method="post" action="{% url 'users:logout' %}">
+                          {% csrf_token %}
+                          <button type="submit"
+                                  class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <span class="flex items-center">
+                              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                              </svg>
+                              Cerrar Sesión
+                            </span>
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                    {% endif %}
                     {% endblock %}
 
                     <!-- Notification Bell -->
@@ -205,7 +248,9 @@
         <!-- Main Content Area -->
         <div class="flex flex-1">
             {% block sidebar %}
-            <!-- Sidebar will be inserted here by pages that need it -->
+            {% if user.is_authenticated %}
+            {% include 'components/_sidebar.html' with user=request.user request=request %}
+            {% endif %}
             {% endblock %}
             
             <!-- Main Content -->
@@ -251,17 +296,17 @@
         
         {% block footer %}
         <!-- Footer -->
-        <footer class="bg-grafito text-white mt-auto">
+        <footer class="bg-primary text-white mt-auto">
             <div class="container mx-auto px-4 py-6">
                 <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-sm text-gray-300">
+                    <p class="text-sm text-blue-200">
                         &copy; {% now "Y" %} CRM System. Todos los derechos reservados.
                     </p>
                     <div class="flex space-x-4 mt-4 md:mt-0">
                         {% block footer_links %}
-                        <a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Ayuda</a>
-                        <a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Privacidad</a>
-                        <a href="#" class="text-sm text-gray-300 hover:text-white transition-colors">Términos</a>
+                        <a href="#" class="text-sm text-blue-200 hover:text-white transition-colors">Ayuda</a>
+                        <a href="#" class="text-sm text-blue-200 hover:text-white transition-colors">Privacidad</a>
+                        <a href="#" class="text-sm text-blue-200 hover:text-white transition-colors">Términos</a>
                         {% endblock %}
                     </div>
                 </div>
@@ -276,6 +321,15 @@
         document.getElementById('mobile-menu-toggle')?.addEventListener('click', function() {
             const menu = document.getElementById('mobile-menu');
             menu.classList.toggle('hidden');
+        });
+        
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('user-menu-container');
+            const dropdown = document.getElementById('user-dropdown');
+            if (container && dropdown && !container.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
         });
         
         // Auto-dismiss alerts after 5 seconds

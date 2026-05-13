@@ -245,12 +245,7 @@
 
   {% else %}
   <!-- Empty state -->
-  {% empty_state
-      title="No se encontraron clientes"
-      message="Ajusta los filtros de búsqueda o crea un nuevo cliente para comenzar."
-      cta_text="Nuevo Cliente"
-      cta_url="/clientes/nuevo/"
-  %}
+  {% empty_state title="No se encontraron clientes" message="Ajusta los filtros de búsqueda o crea un nuevo cliente para comenzar." cta_text="Nuevo Cliente" cta_url="/clientes/nuevo/" %}
   {% endif %}
 
 </div>
