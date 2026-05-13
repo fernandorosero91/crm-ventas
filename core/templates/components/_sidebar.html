@@ -30,17 +30,10 @@ Responsive Behavior:
     id="sidebar"
     class="
         sidebar bg-white border-r border-gray-200 
-        transition-[width] duration-300 ease-in-out
-        fixed lg:static inset-y-0 left-0 z-40
-        {% if collapsed %}
-            w-16
-        {% else %}
-            w-64
-        {% endif %}
-        
-        {# Mobile: hidden by default #}
-        hidden lg:block
-        
+        transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-40
+        w-64
+        -translate-x-full lg:translate-x-0 lg:static
         {{ classes }}
     "
 >
@@ -237,31 +230,31 @@ Responsive Behavior:
 
 <!-- Sidebar JavaScript -->
 <script>
-// Toggle sidebar collapse/expand (Desktop/Tablet)
+// Toggle sidebar on desktop (collapse/expand)
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
     
-    if (sidebar.classList.contains('w-64')) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
+    if (sidebar.classList.contains('lg:w-64')) {
+        sidebar.classList.remove('lg:w-64');
+        sidebar.classList.add('lg:w-16');
+        sidebarTexts.forEach(text => text.classList.add('lg:hidden'));
+        localStorage.setItem('sidebarCollapsed', 'true');
     } else {
-        sidebar.classList.remove('w-16');
-        sidebar.classList.add('w-64');
-        sidebarTexts.forEach(text => text.classList.remove('hidden'));
+        sidebar.classList.remove('lg:w-16');
+        sidebar.classList.add('lg:w-64');
+        sidebarTexts.forEach(text => text.classList.remove('lg:hidden'));
+        localStorage.setItem('sidebarCollapsed', 'false');
     }
-    
-    // Save state to localStorage
-    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('w-16'));
 }
 
-// Open mobile sidebar
+// Open mobile sidebar (slide in from left)
 function openMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
-    sidebar.classList.remove('hidden');
+    sidebar.classList.remove('-translate-x-full');
+    sidebar.classList.add('translate-x-0');
     overlay.classList.remove('hidden');
 }
 
@@ -270,54 +263,22 @@ function closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
-    sidebar.classList.add('hidden');
+    sidebar.classList.add('-translate-x-full');
+    sidebar.classList.remove('translate-x-0');
     overlay.classList.add('hidden');
 }
 
-// Initialize sidebar state from localStorage
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
-    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-    
-    // Only apply saved state on desktop/tablet
-    if (window.innerWidth >= 1024 && isCollapsed) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
-    }
-    
-    // Auto-collapse on tablet
-    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
-    }
-});
-
-// Handle window resize
-window.addEventListener('resize', function() {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
-    
-    // Auto-collapse on tablet
-    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
-    }
-    
-    // Auto-expand on desktop if not manually collapsed
-    if (window.innerWidth >= 1024 && localStorage.getItem('sidebarCollapsed') !== 'true') {
-        sidebar.classList.remove('w-16');
-        sidebar.classList.add('w-64');
-        sidebarTexts.forEach(text => text.classList.remove('hidden'));
-    }
-});
-
-// Connect to mobile menu toggle button
+// Connect mobile menu toggle button
 const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
 if (mobileMenuToggle) {
     mobileMenuToggle.addEventListener('click', openMobileSidebar);
 }
+
+// Close sidebar on window resize to desktop
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 1024) {
+        const overlay = document.getElementById('sidebar-overlay');
+        overlay.classList.add('hidden');
+    }
+});
 </script>
