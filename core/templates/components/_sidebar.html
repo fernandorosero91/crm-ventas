@@ -45,11 +45,11 @@ Responsive Behavior:
     "
 >
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-        <div class="flex items-center space-x-3 overflow-hidden">
+    <div class="flex items-center justify-between h-16 px-2 border-b border-gray-200">
+        <div class="flex items-center space-x-3 overflow-hidden min-w-0">
             <!-- Logo/Icon -->
-            <div class="flex-shrink-0">
-                <svg class="w-8 h-8 text-[#1e3a5f]" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex-shrink-0 ml-1">
+                <svg class="w-7 h-7 text-[#1e3a5f]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
                 </svg>
             </div>
@@ -202,21 +202,21 @@ Responsive Behavior:
     </nav>
     
     <!-- Sidebar Footer -->
-    <div class="border-t border-gray-200 p-4">
-        <div class="flex items-center space-x-3 overflow-hidden">
+    <div class="border-t border-gray-200 p-2">
+        <div class="flex items-center space-x-3 overflow-hidden justify-center lg:justify-start lg:px-2">
             <!-- User Avatar -->
             <div class="flex-shrink-0">
                 {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="w-10 h-10 rounded-full">
+                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="w-9 h-9 rounded-full">
                 {% else %}
-                <div class="w-10 h-10 rounded-full bg-[#1e3a5f] flex items-center justify-center text-white font-medium">
+                <div class="w-9 h-9 rounded-full bg-[#1e3a5f] flex items-center justify-center text-white font-medium text-sm">
                     {{ user.first_name.0|default:user.username.0|upper }}
                 </div>
                 {% endif %}
             </div>
             
             <!-- User Info -->
-            <div class="sidebar-text flex-1 overflow-hidden">
+            <div class="sidebar-text flex-1 overflow-hidden min-w-0">
                 <p class="text-sm font-medium text-gray-900 truncate">
                     {{ user.get_full_name|default:user.username }}
                 </p>
