@@ -38,6 +38,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # ── Application source ────────────────────────────────────────
 COPY . .
 
+# ── Make entrypoint executable ────────────────────────────────
+RUN chmod +x /app/entrypoint.sh
+
 # ── Static files ──────────────────────────────────────────────
 # Collect static assets so Nginx / WhiteNoise can serve them.
 # DJANGO_SETTINGS_MODULE must point to a settings file that does
