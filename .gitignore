@@ -5,6 +5,9 @@ __pycache__/
 *.so
 .Python
 
+# Deployment guide (internal only)
+DEPLOYMENT.md
+
 # Virtual Environment
 venv/
 env/
@@ -48,3 +51,4 @@ Thumbs.db
 # Kiro
 .kiro
 agents.md
+.github
