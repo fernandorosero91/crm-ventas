@@ -31,15 +31,6 @@ Parameters:
 - classes: Additional CSS classes (optional)
 {% endcomment %}
 
-{% with 
-    type=type|default:'text'
-    required=required|default:False
-    disabled=disabled|default:False
-    readonly=readonly|default:False
-    has_error=error|default:False
-    has_success=success|default:False
-%}
-
 <div class="relative {{ classes }}">
     <!-- Input Field -->
     {% if type == 'textarea' %}
@@ -155,5 +146,3 @@ Parameters:
     </div>
     {% endif %}
 </div>
-
-{% endwith %}

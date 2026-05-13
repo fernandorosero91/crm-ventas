@@ -22,15 +22,6 @@ Parameters:
 - responsive: Enable horizontal scroll on mobile (default: True)
 {% endcomment %}
 
-{% with 
-    sortable=sortable|default:True
-    loading=loading|default:False
-    striped=striped|default:True
-    hover=hover|default:True
-    responsive=responsive|default:True
-    empty_message=empty_message|default:'No hay datos disponibles'
-%}
-
 <div class="{% if responsive %}overflow-x-auto{% endif %} rounded-lg border border-gray-200">
     <table class="min-w-full divide-y divide-gray-200">
         <!-- Table Header -->
@@ -92,13 +83,11 @@ Parameters:
                         {% if header.key in row %}
                             {{ row|get_item:header.key }}
                         {% else %}
-                            {% with key=header.key %}
-                                {% if row|attr:key %}
-                                    {{ row|attr:key }}
+                                {% if row|attr:header.key %}
+                                    {{ row|attr:header.key }}
                                 {% else %}
                                     -
                                 {% endif %}
-                            {% endwith %}
                         {% endif %}
                     </td>
                     {% endfor %}
@@ -196,5 +185,3 @@ function sortTable(headerElement, sortKey) {
 }
 </script>
 {% endif %}
-
-{% endwith %}

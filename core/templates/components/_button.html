@@ -26,14 +26,6 @@ Parameters:
 - onclick: JavaScript onclick handler (optional)
 {% endcomment %}
 
-{% with 
-    variant=variant|default:'primary'
-    type=type|default:'button'
-    size=size|default:'md'
-    disabled=disabled|default:False
-    loading=loading|default:False
-%}
-
 <button 
     type="{{ type }}"
     {% if id %}id="{{ id }}"{% endif %}
@@ -92,5 +84,3 @@ Parameters:
         {{ text }}
     {% endif %}
 </button>
-
-{% endwith %}

@@ -17,12 +17,6 @@ Parameters:
 - classes: Additional CSS classes (optional)
 {% endcomment %}
 
-{% with 
-    type=type|default:'info'
-    dismissible=dismissible|default:True
-    icon=icon|default:True
-%}
-
 <div 
     class="
         rounded-lg p-4 flex items-start justify-between shadow-sm
@@ -78,5 +72,3 @@ Parameters:
     </button>
     {% endif %}
 </div>
-
-{% endwith %}

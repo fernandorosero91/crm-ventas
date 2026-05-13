@@ -159,7 +159,7 @@ def pagination(context, page_obj, page_sizes='15,30,50', show_page_size=True,
     """
     return {
         'page_obj': page_obj,
-        'page_sizes': page_sizes,
+        'page_sizes': [s.strip() for s in page_sizes.split(',')],
         'show_page_size': show_page_size,
         'show_info': show_info,
         'classes': classes,

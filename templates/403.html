@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Acceso denegado — CRM System{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[60vh]">
+    <div class="text-center max-w-md">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-yellow-50 flex items-center justify-center">
+            <svg class="w-10 h-10 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+        </div>
+
+        <h1 class="text-6xl font-bold text-[#1e3a5f] mb-2">403</h1>
+        <h2 class="text-xl font-semibold text-gray-800 mb-3">Acceso denegado</h2>
+        <p class="text-gray-500 mb-8">
+            No tiene permisos suficientes para acceder a esta página. Contacte al administrador si cree que esto es un error.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <a href="/dashboard/"
+               class="inline-flex items-center justify-center px-5 py-2.5 bg-[#1e3a5f] text-white font-medium rounded-xl
+                      hover:bg-[#152d4a] transition-all duration-200 active:scale-[0.98]">
+                Ir al Dashboard
+            </a>
+            <button onclick="history.back()"
+                    class="inline-flex items-center justify-center px-5 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-xl
+                           hover:bg-gray-200 transition-all duration-200">
+                Volver atrás
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

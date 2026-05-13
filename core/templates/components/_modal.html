@@ -27,12 +27,6 @@ JavaScript to close modal:
 document.getElementById('myModal').classList.add('hidden');
 {% endcomment %}
 
-{% with 
-    size=size|default:'md'
-    close_on_backdrop=close_on_backdrop|default:True
-    type=type|default:'default'
-%}
-
 <!-- Modal Backdrop and Container -->
 <div 
     id="{{ modal_id }}" 
@@ -150,5 +144,3 @@ document.getElementById('myModal').classList.add('hidden');
     }
 })();
 </script>
-
-{% endwith %}
