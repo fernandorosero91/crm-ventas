@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Editar Oportunidad{% else %}Nueva Oportunidad{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-3xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-[#1e3a5f] mb-2">
+            {% if form.instance.pk %}
+                Editar Oportunidad
+            {% else %}
+                Nueva Oportunidad
+            {% endif %}
+        </h1>
+        <p class="text-gray-600">
+            {% if form.instance.pk %}
+                Actualiza la información de la oportunidad
+            {% else %}
+                Registra una nueva oportunidad de venta
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <form method="post" id="opportunityForm" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Display non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        {% for error in form.non_field_errors %}
+                        <p class="text-sm text-red-700">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Title Field -->
+            <div class="relative">
+                {{ form.title }}
+                <label for="{{ form.title.id_for_label }}" 
+                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                    Título de la Oportunidad *
+                </label>
+                {% if form.title.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Client Field -->
+            <div>
+                <label for="{{ form.client.id_for_label }}" 
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Cliente *
+                </label>
+                {{ form.client }}
+                {% if form.client.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.client.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Selecciona el cliente asociado a esta oportunidad</p>
+            </div>
+
+            <!-- Estimated Value and Probability -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Estimated Value -->
+                <div class="relative">
+                    {{ form.estimated_value }}
+                    <label for="{{ form.estimated_value.id_for_label }}" 
+                           class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                        Valor Estimado ($) *
+                    </label>
+                    {% if form.estimated_value.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.estimated_value.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Debe ser mayor a 0</p>
+                </div>
+
+                <!-- Probability -->
+                <div class="relative">
+                    {{ form.probability }}
+                    <label for="{{ form.probability.id_for_label }}" 
+                           class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                        Probabilidad (%) *
+                    </label>
+                    {% if form.probability.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.probability.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Entre 0 y 100</p>
+                </div>
+            </div>
+
+            <!-- Expected Close Date -->
+            <div class="relative">
+                {{ form.expected_close_date }}
+                <label for="{{ form.expected_close_date.id_for_label }}" 
+                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-gray-700 transition-all duration-200 peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-[#2c6e8a]">
+                    Fecha Esperada de Cierre *
+                </label>
+                {% if form.expected_close_date.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.expected_close_date.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">No puede estar en el pasado</p>
+            </div>
+
+            <!-- Assigned Vendedor (Admin/Supervisor only) -->
+            {% if user.role == 'administrator' or user.role == 'supervisor' %}
+            <div>
+                <label for="{{ form.assigned_vendedor.id_for_label }}" 
+                       class="block text-sm font-medium text-gray-700 mb-2">
+                    Vendedor Asignado
+                </label>
+                {{ form.assigned_vendedor }}
+                {% if form.assigned_vendedor.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.assigned_vendedor.errors.0 }}</p>
+                {% endif %}
+                <p class="mt-1 text-xs text-gray-500">Si no se selecciona, se asignará automáticamente al usuario actual</p>
+            </div>
+            {% endif %}
+
+            <!-- Weighted Value Display (Edit mode only) -->
+            {% if form.instance.pk %}
+            <div class="bg-gray-50 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Valor Ponderado</p>
+                        <p class="text-xs text-gray-500">Calculado automáticamente: Valor × Probabilidad / 100</p>
+                    </div>
+                    <div class="text-2xl font-bold text-[#10b981]">
+                        ${{ form.instance.weighted_value|floatformat:2 }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Form Actions -->
+            <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+                <a href="{% if form.instance.pk %}{% url 'ventas:opportunity_detail' form.instance.pk %}{% else %}{% url 'ventas:opportunity_list' %}{% endif %}" 
+                   class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                    Cancelar
+                </a>
+                <button type="submit" 
+                        class="px-6 py-2 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#152d4a] transition-colors duration-200 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    {% if form.instance.pk %}Actualizar{% else %}Crear{% endif %} Oportunidad
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Real-time Validation Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('opportunityForm');
+    const estimatedValueInput = document.getElementById('{{ form.estimated_value.id_for_label }}');
+    const probabilityInput = document.getElementById('{{ form.probability.id_for_label }}');
+    const expectedCloseDateInput = document.getElementById('{{ form.expected_close_date.id_for_label }}');
+
+    // Validate estimated value
+    if (estimatedValueInput) {
+        estimatedValueInput.addEventListener('blur', function() {
+            const value = parseFloat(this.value);
+            const errorElement = this.parentElement.querySelector('.text-red-600');
+            
+            if (errorElement) errorElement.remove();
+            
+            if (isNaN(value) || value <= 0) {
+                const error = document.createElement('p');
+                error.className = 'mt-1 text-sm text-red-600';
+                error.textContent = 'El valor estimado debe ser mayor a 0';
+                this.parentElement.appendChild(error);
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+
+    // Validate probability
+    if (probabilityInput) {
+        probabilityInput.addEventListener('blur', function() {
+            const value = parseInt(this.value);
+            const errorElement = this.parentElement.querySelector('.text-red-600');
+            
+            if (errorElement) errorElement.remove();
+            
+            if (isNaN(value) || value < 0 || value > 100) {
+                const error = document.createElement('p');
+                error.className = 'mt-1 text-sm text-red-600';
+                error.textContent = 'La probabilidad debe estar entre 0 y 100';
+                this.parentElement.appendChild(error);
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+
+    // Validate expected close date
+    if (expectedCloseDateInput) {
+        expectedCloseDateInput.addEventListener('blur', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const errorElement = this.parentElement.querySelector('.text-red-600');
+            
+            if (errorElement) errorElement.remove();
+            
+            if (selectedDate < today) {
+                const error = document.createElement('p');
+                error.className = 'mt-1 text-sm text-red-600';
+                error.textContent = 'La fecha esperada de cierre no puede estar en el pasado';
+                this.parentElement.appendChild(error);
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+                this.classList.add('border-green-500');
+            }
+        });
+    }
+
+    // Form submit validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Check all required fields
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                isValid = false;
+                field.classList.add('border-red-500');
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            alert('Por favor complete todos los campos requeridos');
+        }
+    });
+});
+</script>
+{% endblock %}

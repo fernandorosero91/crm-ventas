@@ -1,0 +1,410 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ opportunity.title }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+            <div class="flex items-center gap-3 mb-2">
+                <h1 class="text-3xl font-bold text-[#1e3a5f]">{{ opportunity.title }}</h1>
+                <span class="px-3 py-1 text-sm font-semibold rounded-full
+                    {% if opportunity.stage == 'prospeccion' %}bg-gray-100 text-gray-800
+                    {% elif opportunity.stage == 'calificacion' %}bg-blue-100 text-blue-800
+                    {% elif opportunity.stage == 'propuesta' %}bg-yellow-100 text-yellow-800
+                    {% elif opportunity.stage == 'negociacion' %}bg-orange-100 text-orange-800
+                    {% elif opportunity.stage == 'cierre_ganado' %}bg-green-100 text-green-800
+                    {% elif opportunity.stage == 'cierre_perdido' %}bg-red-100 text-red-800
+                    {% endif %}">
+                    {{ opportunity.get_stage_display }}
+                </span>
+            </div>
+            <p class="text-gray-600">Oportunidad #{{ opportunity.id }}</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-3">
+            <a href="{% url 'ventas:opportunity_list' %}" 
+               class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                Volver
+            </a>
+            {% if can_edit %}
+            <a href="{% url 'ventas:opportunity_update' opportunity.pk %}" 
+               class="px-4 py-2 bg-[#2c6e8a] text-white rounded-lg hover:bg-[#245a73] transition-colors duration-200">
+                Editar
+            </a>
+            <button onclick="confirmDelete()" 
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200">
+                Eliminar
+            </button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Opportunity Details Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-[#1e3a5f] mb-4">Detalles de la Oportunidad</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Cliente</p>
+                        <a href="{% url 'clientes:client_detail' opportunity.client.pk %}" 
+                           class="text-[#2c6e8a] hover:text-[#245a73] font-semibold">
+                            {{ opportunity.client.company_name }}
+                        </a>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Vendedor Asignado</p>
+                        <p class="text-gray-900">{{ opportunity.assigned_vendedor.get_full_name|default:"Sin asignar" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Valor Estimado</p>
+                        <p class="text-2xl font-bold text-[#1e3a5f]">${{ opportunity.estimated_value|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Probabilidad</p>
+                        <p class="text-2xl font-bold text-[#2c6e8a]">{{ opportunity.probability }}%</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Valor Ponderado</p>
+                        <p class="text-2xl font-bold text-[#10b981]">${{ opportunity.weighted_value|floatformat:2 }}</p>
+                        <p class="text-xs text-gray-500">Valor × Probabilidad / 100</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Fecha Esperada de Cierre</p>
+                        <p class="text-gray-900">{{ opportunity.expected_close_date|date:"d/m/Y" }}</p>
+                    </div>
+                    {% if opportunity.actual_close_date %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Fecha Real de Cierre</p>
+                        <p class="text-gray-900">{{ opportunity.actual_close_date|date:"d/m/Y" }}</p>
+                    </div>
+                    {% endif %}
+                    {% if opportunity.loss_reason %}
+                    <div class="md:col-span-2">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Motivo de Pérdida</p>
+                        <p class="text-gray-900">{{ opportunity.loss_reason }}</p>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Creado</p>
+                        <p class="text-gray-900">{{ opportunity.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 mb-1">Última Actualización</p>
+                        <p class="text-gray-900">{{ opportunity.updated_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage Management Card -->
+            {% if can_change_stage and not is_closed %}
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-[#1e3a5f] mb-4">Gestión de Etapas</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {% for stage_value, stage_label in stage_choices %}
+                    <button onclick="changeStage('{{ stage_value }}', '{{ stage_label }}')"
+                            class="px-4 py-2 rounded-lg border-2 transition-all duration-200
+                            {% if opportunity.stage == stage_value %}
+                                border-[#2c6e8a] bg-[#2c6e8a] text-white
+                            {% else %}
+                                border-gray-300 hover:border-[#2c6e8a] hover:bg-gray-50
+                            {% endif %}">
+                        {{ stage_label }}
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Follow-ups Section -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-[#1e3a5f]">Seguimientos</h2>
+                    <a href="{% url 'ventas:followup_create' %}?opportunity={{ opportunity.pk }}" 
+                       class="px-4 py-2 bg-[#1e3a5f] text-white rounded-lg hover:bg-[#152d4a] transition-colors duration-200 text-sm">
+                        + Nuevo Seguimiento
+                    </a>
+                </div>
+                {% if follow_ups %}
+                <div class="space-y-4">
+                    {% for followup in follow_ups %}
+                    <div class="border-l-4 border-[#2c6e8a] pl-4 py-2">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded bg-gray-100 text-gray-800">
+                                        {{ followup.get_follow_up_type_display }}
+                                    </span>
+                                    <span class="text-sm text-gray-500">
+                                        {{ followup.date|date:"d/m/Y H:i" }}
+                                    </span>
+                                </div>
+                                <p class="text-gray-900 mb-2">{{ followup.notes }}</p>
+                                {% if followup.next_action_date %}
+                                <p class="text-sm text-[#2c6e8a]">
+                                    Próxima acción: {{ followup.next_action_date|date:"d/m/Y" }}
+                                </p>
+                                {% endif %}
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Por {{ followup.created_by.get_full_name }}
+                                </p>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="{% url 'ventas:followup_update' followup.pk %}" 
+                                   class="text-[#2c6e8a] hover:text-[#245a73] text-sm">
+                                    Editar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-center py-8">No hay seguimientos registrados</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Stage Change History -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-[#1e3a5f] mb-4">Historial de Etapas</h2>
+                {% if stage_changes %}
+                <div class="space-y-3">
+                    {% for change in stage_changes %}
+                    <div class="border-l-2 border-gray-300 pl-3 py-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-semibold text-gray-500">
+                                {{ change.from_stage|upper }}
+                            </span>
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                            <span class="text-xs font-semibold text-[#2c6e8a]">
+                                {{ change.to_stage|upper }}
+                            </span>
+                        </div>
+                        <p class="text-xs text-gray-500">
+                            {{ change.changed_at|date:"d/m/Y H:i" }}
+                        </p>
+                        <p class="text-xs text-gray-600">
+                            Por {{ change.changed_by.get_full_name }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-gray-500 text-sm">No hay cambios de etapa registrados</p>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-bold text-[#1e3a5f] mb-4">Acciones Rápidas</h2>
+                <div class="space-y-2">
+                    <a href="{% url 'ventas:followup_create' %}?opportunity={{ opportunity.pk }}" 
+                       class="block w-full px-4 py-2 bg-[#2c6e8a] text-white rounded-lg hover:bg-[#245a73] transition-colors duration-200 text-center">
+                        Registrar Seguimiento
+                    </a>
+                    <a href="{% url 'clientes:client_detail' opportunity.client.pk %}" 
+                       class="block w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 text-center">
+                        Ver Cliente
+                    </a>
+                    {% if can_edit %}
+                    <a href="{% url 'ventas:opportunity_update' opportunity.pk %}" 
+                       class="block w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200 text-center">
+                        Editar Oportunidad
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Eliminar Oportunidad</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    ¿Está seguro de que desea eliminar esta oportunidad? Esta acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="items-center px-4 py-3">
+                <form method="post" action="{% url 'ventas:opportunity_delete' opportunity.pk %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 mb-2">
+                        Eliminar
+                    </button>
+                </form>
+                <button onclick="closeDeleteModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stage Change Modal -->
+<div id="stageModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Cambiar Etapa</h3>
+            <div id="stageModalContent"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+function changeStage(newStage, newStageLabel) {
+    const currentStage = '{{ opportunity.stage }}';
+    
+    if (newStage === currentStage) {
+        return;
+    }
+
+    // Check if moving to terminal stages
+    if (newStage === 'cierre_ganado') {
+        showCloseDateModal(newStage, newStageLabel);
+    } else if (newStage === 'cierre_perdido') {
+        showLossReasonModal(newStage, newStageLabel);
+    } else {
+        confirmStageChange(newStage, newStageLabel);
+    }
+}
+
+function showCloseDateModal(newStage, newStageLabel) {
+    const modal = document.getElementById('stageModal');
+    const content = document.getElementById('stageModalContent');
+    
+    content.innerHTML = `
+        <p class="text-sm text-gray-500 mb-4">Ingrese la fecha real de cierre:</p>
+        <input type="date" id="actualCloseDate" 
+               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c6e8a] mb-4"
+               value="${new Date().toISOString().split('T')[0]}">
+        <div class="flex gap-2">
+            <button onclick="submitStageChange('${newStage}', '${newStageLabel}')"
+                    class="flex-1 px-4 py-2 bg-[#10b981] text-white rounded-lg hover:bg-green-700">
+                Confirmar
+            </button>
+            <button onclick="closeStageModal()"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                Cancelar
+            </button>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+function showLossReasonModal(newStage, newStageLabel) {
+    const modal = document.getElementById('stageModal');
+    const content = document.getElementById('stageModalContent');
+    
+    content.innerHTML = `
+        <p class="text-sm text-gray-500 mb-4">Ingrese el motivo de pérdida (mínimo 10 caracteres):</p>
+        <textarea id="lossReason" rows="4"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2c6e8a] mb-4"
+                  placeholder="Describa por qué se perdió esta oportunidad..."></textarea>
+        <div class="flex gap-2">
+            <button onclick="submitStageChange('${newStage}', '${newStageLabel}')"
+                    class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                Confirmar
+            </button>
+            <button onclick="closeStageModal()"
+                    class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                Cancelar
+            </button>
+        </div>
+    `;
+    
+    modal.classList.remove('hidden');
+}
+
+function confirmStageChange(newStage, newStageLabel) {
+    if (confirm(`¿Cambiar la etapa a "${newStageLabel}"?`)) {
+        submitStageChange(newStage, newStageLabel);
+    }
+}
+
+function submitStageChange(newStage, newStageLabel) {
+    const data = {
+        stage: newStage
+    };
+    
+    if (newStage === 'cierre_ganado') {
+        const dateInput = document.getElementById('actualCloseDate');
+        if (!dateInput || !dateInput.value) {
+            alert('Debe ingresar la fecha de cierre');
+            return;
+        }
+        data.actual_close_date = dateInput.value;
+    } else if (newStage === 'cierre_perdido') {
+        const reasonInput = document.getElementById('lossReason');
+        if (!reasonInput || reasonInput.value.trim().length < 10) {
+            alert('El motivo de pérdida debe tener al menos 10 caracteres');
+            return;
+        }
+        data.loss_reason = reasonInput.value.trim();
+        data.actual_close_date = new Date().toISOString().split('T')[0];
+    }
+    
+    fetch('{% url "ventas:opportunity_stage_change" opportunity.pk %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al cambiar la etapa');
+        console.error('Error:', error);
+    })
+    .finally(() => {
+        closeStageModal();
+    });
+}
+
+function closeStageModal() {
+    document.getElementById('stageModal').classList.add('hidden');
+}
+
+// Close modals on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+        closeStageModal();
+    }
+});
+</script>
+{% endblock %}
