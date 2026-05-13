@@ -183,7 +183,8 @@
           Vista Previa —
           {% if report_type == 'clients' %}Clientes
           {% elif report_type == 'opportunities' %}Oportunidades
-          {% elif report_type == 'follow_ups' %}Seguimientos
+          {% elif report_type == 'followups' %}Seguimientos
+          {% elif report_type == 'sales' %}Ventas Cerradas
           {% endif %}
         </h2>
         <p class="text-sm text-gray-500 mt-0.5">
@@ -213,7 +214,7 @@
             Prob. promedio:
             <span class="font-semibold text-[#1e3a5f]">{{ summary.avg_probability }}%</span>
           </span>
-        {% elif report_type == 'follow_ups' %}
+        {% elif report_type == 'followups' %}
           <span class="inline-flex items-center gap-1 text-gray-600">
             Total: <span class="font-semibold text-[#1e3a5f]">{{ summary.total }}</span>
           </span>
@@ -243,7 +244,7 @@
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapa</th>
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Vendedor</th>
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Cierre Esp.</th>
-            {% elif report_type == 'follow_ups' %}
+            {% elif report_type == 'followups' %}
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente / Oportunidad</th>
               <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Notas</th>
@@ -307,7 +308,7 @@
               </td>
               <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{{ row.expected_close_date|date:"d/m/Y" }}</td>
 
-            {% elif report_type == 'follow_ups' %}
+            {% elif report_type == 'followups' %}
               <td class="px-5 py-3 whitespace-nowrap">
                 {% with ftype=row.follow_up_type %}
                   {% if ftype == 'call' %}
@@ -430,7 +431,7 @@
         { value: 'cierre_perdido', text: 'Cierre Perdido' },
       ],
     },
-    follow_ups: {
+    followups: {
       label: 'Tipo de seguimiento',
       options: [
         { value: '', text: 'Todos los tipos' },

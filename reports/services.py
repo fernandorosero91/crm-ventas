@@ -452,7 +452,7 @@ _EXCEL_COLUMNS = {
         "title": "Reporte de Oportunidades",
         "headers": ["Titulo", "Cliente", "Valor Estimado", "Etapa", "Vendedor", "Fecha Esperada de Cierre"],
     },
-    "follow_ups": {
+    "followups": {
         "title": "Reporte de Seguimientos",
         "headers": ["Cliente", "Tipo de Contacto", "Notas", "Vendedor", "Fecha"],
     },
@@ -507,7 +507,7 @@ def _queryset_to_export_rows(report_type, queryset):
                     o.expected_close_date.strftime("%Y-%m-%d") if o.expected_close_date else "",
                 ])
 
-    elif report_type == "follow_ups":
+    elif report_type == "followups":
         for f in queryset:
             client_name = ""
             if f.client:
@@ -541,7 +541,7 @@ def generate_excel_export(queryset, report_type: str, filters: dict) -> bytes:
 
     Args:
         queryset: Django queryset already filtered and scoped.
-        report_type (str): One of clients, sales, opportunities, follow_ups.
+        report_type (str): One of clients, sales, opportunities, followups.
         filters (dict): Applied filters (date_from, date_to, vendedor, status).
 
     Returns:
@@ -680,7 +680,7 @@ def generate_csv_export(queryset, report_type: str) -> str:
 
     Args:
         queryset: Django queryset already filtered and scoped.
-        report_type (str): One of clients, sales, opportunities, follow_ups.
+        report_type (str): One of clients, sales, opportunities, followups.
 
     Returns:
         str: CSV content as a Unicode string.
