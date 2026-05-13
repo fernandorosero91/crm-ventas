@@ -11,6 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Initialize environment variables
 env = environ.Env()
 
+# Read .env file if it exists
+env.read_env(BASE_DIR / '.env', overwrite=True)
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',

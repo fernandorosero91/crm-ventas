@@ -63,6 +63,25 @@ services:
     networks:
       - crm_prod_network
 
+  # ─────────────────────────────────────────────
+  # Automatic reminder scheduler
+  # ─────────────────────────────────────────────
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py run_scheduler --interval 60
+    env_file:
+      - .env.prod
+    environment:
+      - DJANGO_SETTINGS_MODULE=crm.settings.production
+    depends_on:
+      - db
+      - redis
+    restart: always
+    networks:
+      - crm_prod_network
+
 # ─────────────────────────────────────────────
 # Named volumes
 # ─────────────────────────────────────────────
