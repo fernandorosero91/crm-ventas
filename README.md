@@ -564,7 +564,7 @@ docker-compose logs -f db
 | Blanco | `#ffffff` | Fondos, tarjetas |
 | Verde esmeralda | `#10b981` | Indicadores positivos, éxito |
 
-> ❌ No se usa el color morado en ninguna parte de la interfaz.
+
 
 ---
 
