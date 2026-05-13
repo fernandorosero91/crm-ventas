@@ -29,9 +29,9 @@ Responsive Behavior:
 <aside 
     id="sidebar"
     class="
-        sidebar bg-white border-r border-gray-200 
+        sidebar bg-white border-r border-gray-200 shadow-xl lg:shadow-none
         transition-transform duration-300 ease-in-out
-        fixed inset-y-0 left-0 z-40
+        fixed top-0 bottom-0 left-0 z-40
         w-64
         -translate-x-full lg:translate-x-0 lg:static
         {{ classes }}
@@ -224,7 +224,7 @@ Responsive Behavior:
 <!-- Mobile Overlay -->
 <div 
     id="sidebar-overlay"
-    class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-30 lg:hidden"
+    class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-30 lg:hidden"
     onclick="closeMobileSidebar()"
 ></div>
 
@@ -256,6 +256,7 @@ function openMobileSidebar() {
     sidebar.classList.remove('-translate-x-full');
     sidebar.classList.add('translate-x-0');
     overlay.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
 }
 
 // Close mobile sidebar
@@ -266,6 +267,7 @@ function closeMobileSidebar() {
     sidebar.classList.add('-translate-x-full');
     sidebar.classList.remove('translate-x-0');
     overlay.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
 }
 
 // Connect mobile menu toggle button
@@ -274,11 +276,30 @@ if (mobileMenuToggle) {
     mobileMenuToggle.addEventListener('click', openMobileSidebar);
 }
 
+// Close sidebar when clicking a nav link on mobile
+document.querySelectorAll('#sidebar nav a').forEach(function(link) {
+    link.addEventListener('click', function() {
+        if (window.innerWidth < 1024) {
+            closeMobileSidebar();
+        }
+    });
+});
+
 // Close sidebar on window resize to desktop
 window.addEventListener('resize', function() {
     if (window.innerWidth >= 1024) {
+        const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.remove('translate-x-0');
         overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+    }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && window.innerWidth < 1024) {
+        closeMobileSidebar();
     }
 });
 </script>
