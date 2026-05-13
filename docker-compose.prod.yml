@@ -36,7 +36,8 @@ services:
       - redis
     restart: always
     networks:
-      - crm_prod_network
+      - dokploy-network
+      - crm_internal
 
   # ─────────────────────────────────────────────
   # PostgreSQL database
@@ -51,7 +52,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
     networks:
-      - crm_prod_network
+      - crm_internal
 
   # ─────────────────────────────────────────────
   # Redis (cache / Celery broker)
@@ -60,7 +61,7 @@ services:
     image: redis:7-alpine
     restart: always
     networks:
-      - crm_prod_network
+      - crm_internal
 
   # ─────────────────────────────────────────────
   # Automatic reminder scheduler
@@ -90,7 +91,7 @@ services:
       - redis
     restart: always
     networks:
-      - crm_prod_network
+      - crm_internal
 
 # ─────────────────────────────────────────────
 # Named volumes
@@ -104,5 +105,7 @@ volumes:
 # Networks
 # ─────────────────────────────────────────────
 networks:
-  crm_prod_network:
+  dokploy-network:
+    external: true
+  crm_internal:
     driver: bridge
