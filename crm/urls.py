@@ -25,6 +25,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url='/users/login/', permanent=False), name='home'),
     path('users/', include('users.urls')),
     path('dashboard/', include('dashboard.urls')),
+    path('clientes/', include('clientes.urls')),
 ]
 
 # Serve media files in development

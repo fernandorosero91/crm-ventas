@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% load crm_components %}
+
+{% block title %}{{ client.company_name }} — CRM{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <a href="{% url 'clientes:client_list' %}"
+         class="text-gray-400 hover:text-[#1e3a5f] transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+      </a>
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-bold text-[#1e3a5f]">{{ client.company_name }}</h1>
+          {% if client.is_active %}
+            {% badge text="Activo" type="active" %}
+          {% else %}
+            {% badge text="Inactivo" type="inactive" %}
+          {% endif %}
+        </div>
+        <p class="text-sm text-gray-500 mt-0.5">{{ client.contact_name }}</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="{% url 'clientes:client_update' client.pk %}"
+         class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-[#2c6e8a]
+                rounded-lg hover:bg-[#1e3a5f] transition-colors active:scale-95">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        Editar
+      </a>
+      {% if client.is_active %}
+      <button type="button"
+              onclick="document.getElementById('delete-modal').classList.remove('hidden')"
+              class="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-red-600
+                     rounded-lg hover:bg-red-700 transition-colors active:scale-95">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+        </svg>
+        Desactivar
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Stats Row -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5
+                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+      <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Oportunidades</p>
+      <p class="mt-2 text-3xl font-bold text-[#1e3a5f]">{{ stats.total_opportunities }}</p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5
+                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+      <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Ingresos totales</p>
+      <p class="mt-2 text-3xl font-bold text-[#10b981]">
+        ${{ stats.total_revenue|floatformat:2 }}
+      </p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5
+                hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+      <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Tasa de conversión</p>
+      <p class="mt-2 text-3xl font-bold text-[#2c6e8a]">{{ stats.conversion_rate }}%</p>
+    </div>
+  </div>
+
+  <!-- Main content grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- Left: Client info -->
+    <div class="lg:col-span-1 space-y-6">
+
+      <!-- Client info card -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Información</h2>
+        </div>
+        <div class="p-5 space-y-4">
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Empresa</p>
+            <p class="mt-0.5 text-sm font-medium text-gray-900">{{ client.company_name }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Contacto</p>
+            <p class="mt-0.5 text-sm text-gray-900">{{ client.contact_name }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Email</p>
+            <a href="mailto:{{ client.email }}"
+               class="mt-0.5 text-sm text-[#2c6e8a] hover:underline block">{{ client.email }}</a>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Teléfono</p>
+            <p class="mt-0.5 text-sm text-gray-900">{{ client.phone }}</p>
+          </div>
+          {% if client.industry %}
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Industria</p>
+            <p class="mt-0.5 text-sm text-gray-900">{{ client.industry }}</p>
+          </div>
+          {% endif %}
+          {% if client.address %}
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Dirección</p>
+            <p class="mt-0.5 text-sm text-gray-900">{{ client.address }}</p>
+          </div>
+          {% endif %}
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Vendedor asignado</p>
+            <p class="mt-0.5 text-sm text-gray-900">
+              {{ client.assigned_vendedor.get_full_name|default:client.assigned_vendedor.username|default:"—" }}
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Creado</p>
+            <p class="mt-0.5 text-sm text-gray-900">{{ client.created_at|date:"d/m/Y H:i" }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-400 uppercase tracking-wider">Última actualización</p>
+            <p class="mt-0.5 text-sm text-gray-900">{{ client.updated_at|date:"d/m/Y H:i" }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Status history -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Historial de estado</h2>
+        </div>
+        <div class="p-5">
+          {% if status_history %}
+          <ol class="relative border-l border-gray-200 space-y-4 ml-3">
+            {% for entry in status_history %}
+            <li class="ml-4">
+              <div class="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full border-2 border-white
+                          {% if entry.new_status %}bg-[#10b981]{% else %}bg-red-400{% endif %}"></div>
+              <div class="text-xs text-gray-400">{{ entry.changed_at|date:"d/m/Y H:i" }}</div>
+              <div class="text-sm text-gray-700 mt-0.5">
+                {% if entry.new_status %}
+                  <span class="font-medium text-[#10b981]">Activado</span>
+                {% else %}
+                  <span class="font-medium text-red-500">Desactivado</span>
+                {% endif %}
+                {% if entry.changed_by %}
+                  por {{ entry.changed_by.get_full_name|default:entry.changed_by.username }}
+                {% endif %}
+              </div>
+              {% if entry.reason %}
+              <p class="text-xs text-gray-500 mt-0.5 italic">{{ entry.reason }}</p>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ol>
+          {% else %}
+          <p class="text-sm text-gray-400 text-center py-4">Sin cambios de estado registrados</p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Opportunities + Follow-ups -->
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Opportunities -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+          <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Oportunidades</h2>
+          {% if client.is_active %}
+          <a href="{% url 'clientes:client_list' %}?client={{ client.pk }}"
+             class="text-xs text-[#2c6e8a] hover:text-[#1e3a5f] font-medium transition-colors">
+            + Nueva oportunidad
+          </a>
+          {% endif %}
+        </div>
+        <div class="p-5">
+          {% if opportunities %}
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-100">
+              <thead>
+                <tr>
+                  <th class="pb-2 text-left text-xs font-medium text-gray-400 uppercase">Título</th>
+                  <th class="pb-2 text-left text-xs font-medium text-gray-400 uppercase">Etapa</th>
+                  <th class="pb-2 text-left text-xs font-medium text-gray-400 uppercase">Valor</th>
+                  <th class="pb-2 text-left text-xs font-medium text-gray-400 uppercase">Cierre</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50">
+                {% for opp in opportunities %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="py-3 text-sm font-medium text-gray-900">{{ opp.title }}</td>
+                  <td class="py-3">
+                    {% badge text=opp.get_stage_display type=opp.stage size="sm" %}
+                  </td>
+                  <td class="py-3 text-sm text-gray-700">${{ opp.estimated_value|floatformat:2 }}</td>
+                  <td class="py-3 text-sm text-gray-500">{{ opp.expected_close_date|date:"d/m/Y" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-8">
+            <svg class="w-12 h-12 mx-auto text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <p class="text-sm text-gray-400">No hay oportunidades registradas para este cliente</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Follow-ups -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <h2 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">
+            Seguimientos recientes
+          </h2>
+        </div>
+        <div class="p-5">
+          {% if follow_ups %}
+          <ol class="relative border-l border-gray-200 space-y-5 ml-3">
+            {% for fu in follow_ups %}
+            <li class="ml-4">
+              <div class="absolute -left-1.5 mt-1.5 w-3 h-3 rounded-full border-2 border-white bg-[#2c6e8a]"></div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-gray-400">{{ fu.date|date:"d/m/Y H:i" }}</span>
+                {% badge text=fu.get_follow_up_type_display type="info" size="sm" %}
+              </div>
+              <p class="mt-1 text-sm text-gray-700">{{ fu.notes }}</p>
+              {% if fu.next_action_date %}
+              <p class="mt-0.5 text-xs text-[#2c6e8a]">
+                Próxima acción: {{ fu.next_action_date|date:"d/m/Y" }}
+              </p>
+              {% endif %}
+              {% if fu.created_by %}
+              <p class="mt-0.5 text-xs text-gray-400">
+                Por {{ fu.created_by.get_full_name|default:fu.created_by.username }}
+              </p>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ol>
+          {% else %}
+          <div class="text-center py-8">
+            <svg class="w-12 h-12 mx-auto text-gray-200 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+            </svg>
+            <p class="text-sm text-gray-400">No hay seguimientos registrados para este cliente</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"
+       onclick="document.getElementById('delete-modal').classList.add('hidden')"></div>
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 z-10">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-900">Desactivar cliente</h3>
+          <p class="mt-1 text-sm text-gray-600">
+            ¿Está seguro de que desea desactivar a
+            <strong>{{ client.company_name }}</strong>?
+            El registro se conservará en modo de solo lectura.
+          </p>
+          <form method="post" action="{% url 'clientes:client_delete' client.pk %}" class="mt-4 space-y-3">
+            {% csrf_token %}
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Motivo (opcional)</label>
+              <textarea name="reason" rows="2"
+                        placeholder="Indique el motivo de la desactivación…"
+                        class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-red-400"></textarea>
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button type="button"
+                      onclick="document.getElementById('delete-modal').classList.add('hidden')"
+                      class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300
+                             rounded-lg hover:bg-gray-50 transition-colors">
+                Cancelar
+              </button>
+              <button type="submit"
+                      class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg
+                             hover:bg-red-700 transition-colors active:scale-95">
+                Desactivar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('delete-modal').classList.add('hidden');
+  }
+});
+</script>
+{% endblock %}
