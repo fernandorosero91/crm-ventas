@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load crm_components %}
+
+{% block title %}Notificaciones — CRM{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-[#1e3a5f]">Notificaciones</h1>
+      <p class="text-sm text-gray-500 mt-1">
+        {% if unread_count %}
+          Tienes <strong>{{ unread_count }}</strong> notificación{{ unread_count|pluralize:"es" }} sin leer
+        {% else %}
+          Todas las notificaciones han sido leídas
+        {% endif %}
+      </p>
+    </div>
+
+    {% if unread_count %}
+    <!-- Mark all as read button -->
+    <form method="post" action="{% url 'notifications:mark_all_read' %}">
+      {% csrf_token %}
+      <button type="submit"
+              class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white
+                     bg-[#2c6e8a] rounded-lg hover:bg-[#1e3a5f] transition-all duration-300
+                     active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2
+                     focus:ring-[#2c6e8a]">
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Marcar todas como leídas
+      </button>
+    </form>
+    {% endif %}
+  </div>
+
+  <!-- Notification List Card -->
+  {% if notifications %}
+  <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+    <ul class="divide-y divide-gray-100" id="notification-list">
+      {% for notification in notifications %}
+      <li id="notification-{{ notification.pk }}"
+          class="flex items-start gap-4 px-6 py-4 transition-colors duration-200
+                 {% if not notification.is_read %}bg-blue-50 hover:bg-blue-100{% else %}hover:bg-gray-50{% endif %}">
+
+        <!-- Type icon -->
+        <div class="flex-shrink-0 mt-1">
+          {% if notification.notification_type == 'reminder' %}
+            <div class="w-9 h-9 rounded-full bg-[#1e3a5f] flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          {% elif notification.notification_type == 'follow_up' %}
+            <div class="w-9 h-9 rounded-full bg-[#2c6e8a] flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+          {% elif notification.notification_type == 'stage_change' %}
+            <div class="w-9 h-9 rounded-full bg-[#10b981] flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+              </svg>
+            </div>
+          {% elif notification.notification_type == 'inactivity' %}
+            <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+            </div>
+          {% else %}
+            <div class="w-9 h-9 rounded-full bg-[#4a4a4a] flex items-center justify-center">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+          {% endif %}
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">
+            <span class="text-sm font-semibold text-gray-900">{{ notification.title }}</span>
+
+            <!-- Type badge -->
+            {% if notification.notification_type == 'reminder' %}
+              {% badge text="Recordatorio" type="primary" size="sm" %}
+            {% elif notification.notification_type == 'follow_up' %}
+              {% badge text="Seguimiento" type="secondary" size="sm" %}
+            {% elif notification.notification_type == 'stage_change' %}
+              {% badge text="Cambio de etapa" type="success" size="sm" %}
+            {% elif notification.notification_type == 'inactivity' %}
+              {% badge text="Inactividad" type="warning" size="sm" %}
+            {% else %}
+              {% badge text="Sistema" type="gray" size="sm" %}
+            {% endif %}
+
+            {% if not notification.is_read %}
+              <span class="inline-block w-2 h-2 rounded-full bg-[#2c6e8a]" title="Sin leer"></span>
+            {% endif %}
+          </div>
+
+          <p class="text-sm text-gray-600 leading-relaxed">{{ notification.message }}</p>
+
+          <div class="flex items-center gap-4 mt-2">
+            <span class="text-xs text-gray-400">
+              {{ notification.created_at|timesince }} atrás
+            </span>
+
+            {% if notification.link %}
+            <a href="{{ notification.link }}"
+               class="text-xs text-[#2c6e8a] hover:text-[#1e3a5f] font-medium transition-colors">
+              Ver detalle →
+            </a>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Mark as read button -->
+        {% if not notification.is_read %}
+        <div class="flex-shrink-0">
+          <button type="button"
+                  onclick="markAsRead({{ notification.pk }}, this)"
+                  class="p-1.5 text-gray-400 hover:text-[#10b981] hover:bg-green-50 rounded-lg
+                         transition-colors duration-200"
+                  title="Marcar como leída">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 13l4 4L19 7"/>
+            </svg>
+          </button>
+        </div>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-4">
+    {% pagination page_obj=page_obj show_page_size=False %}
+  </div>
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="bg-white rounded-xl shadow-md border border-gray-200 px-6 py-16 text-center">
+    <div class="mx-auto w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+      </svg>
+    </div>
+    <h3 class="text-lg font-semibold text-gray-900 mb-1">Sin notificaciones</h3>
+    <p class="text-sm text-gray-500">No tienes notificaciones en este momento.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// CSRF token helper
+function getCsrfToken() {
+  return document.querySelector('[name=csrfmiddlewaretoken]')?.value
+    || document.cookie.split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1] || '';
+}
+
+/**
+ * Mark a single notification as read via AJAX.
+ * Removes the unread highlight and the mark-as-read button.
+ */
+function markAsRead(notificationId, buttonEl) {
+  fetch(`/notifications/${notificationId}/read/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': getCsrfToken(),
+      'Content-Type': 'application/json',
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      const row = document.getElementById('notification-' + notificationId);
+      if (row) {
+        // Remove unread highlight
+        row.classList.remove('bg-blue-50', 'hover:bg-blue-100');
+        row.classList.add('hover:bg-gray-50');
+
+        // Remove the blue dot indicator
+        const dot = row.querySelector('.rounded-full.bg-\\[\\#2c6e8a\\]');
+        if (dot) dot.remove();
+
+        // Remove the mark-as-read button
+        buttonEl.closest('div.flex-shrink-0')?.remove();
+      }
+
+      // Update unread count in navbar
+      refreshUnreadCount();
+    }
+  })
+  .catch(err => console.error('Error al marcar notificación:', err));
+}
+
+/**
+ * Refresh the unread count badge in the navbar.
+ */
+function refreshUnreadCount() {
+  fetch('/notifications/unread-count/')
+    .then(r => r.json())
+    .then(data => {
+      const badge = document.getElementById('navbar-unread-badge');
+      const count = data.count;
+      if (badge) {
+        if (count > 0) {
+          badge.textContent = count > 99 ? '99+' : count;
+          badge.classList.remove('hidden');
+        } else {
+          badge.classList.add('hidden');
+        }
+      }
+    })
+    .catch(err => console.error('Error al obtener conteo:', err));
+}
+</script>
+{% endblock %}
