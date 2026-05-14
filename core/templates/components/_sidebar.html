@@ -100,7 +100,8 @@ Responsive Behavior:
             {% else %}
                 {# Default navigation — shown when no menu_items are passed explicitly #}
 
-                {# Dashboard #}
+                {# Dashboard — Admin y Supervisor #}
+                {% if user.role == 'administrator' or user.role == 'supervisor' or user.is_superuser %}
                 <li>
                     <a href="/dashboard/"
                        class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':11' == '/dashboard/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
@@ -114,8 +115,9 @@ Responsive Behavior:
                         <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Dashboard</span>
                     </a>
                 </li>
+                {% endif %}
 
-                {# Clientes #}
+                {# Clientes — Todos los roles #}
                 <li>
                     <a href="/clientes/"
                        class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':10' == '/clientes/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
@@ -130,7 +132,7 @@ Responsive Behavior:
                     </a>
                 </li>
 
-                {# Ventas #}
+                {# Ventas — Todos los roles #}
                 <li>
                     <a href="/ventas/"
                        class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':8' == '/ventas/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
@@ -145,7 +147,7 @@ Responsive Behavior:
                     </a>
                 </li>
 
-                {# Notificaciones #}
+                {# Notificaciones — Todos los roles #}
                 <li>
                     <a href="/notifications/"
                        class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':15' == '/notifications/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
@@ -160,7 +162,8 @@ Responsive Behavior:
                     </a>
                 </li>
 
-                {# Reportes #}
+                {# Reportes — Admin y Supervisor #}
+                {% if user.role == 'administrator' or user.role == 'supervisor' or user.is_superuser %}
                 <li>
                     <a href="/reports/"
                        class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':9' == '/reports/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
@@ -174,6 +177,7 @@ Responsive Behavior:
                         <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Reportes</span>
                     </a>
                 </li>
+                {% endif %}
 
                 {# Usuarios — Admin only #}
                 {% if user.role == 'administrator' or user.is_superuser %}
