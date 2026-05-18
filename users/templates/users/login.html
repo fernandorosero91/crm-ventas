@@ -1,155 +1,233 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión — CRM System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-[#1e3a5f]">
 
-{% block title %}Iniciar Sesión - CRM System{% endblock %}
+    <div class="min-h-screen flex">
 
-{% block extra_css %}
-<style>
-    .login-container {
-        min-height: calc(100vh - 200px);
-    }
-    
-    .floating-label {
-        position: relative;
-    }
-    
-    .floating-label input {
-        padding-top: 1.5rem;
-    }
-    
-    .floating-label label {
-        position: absolute;
-        left: 0.75rem;
-        top: 1rem;
-        transition: all 0.2s ease-out;
-        pointer-events: none;
-        color: #6b7280;
-    }
-    
-    .floating-label input:focus + label,
-    .floating-label input:not(:placeholder-shown) + label {
-        top: 0.25rem;
-        font-size: 0.75rem;
-        color: var(--color-azul-oscuro);
-    }
-</style>
-{% endblock %}
+        <!-- Left Panel - Branding -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2c6e8a] items-center justify-center p-12 relative overflow-hidden">
+            <!-- Background pattern -->
+            <div class="absolute inset-0 opacity-5">
+                <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="white" stroke-width="0.5"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)"/>
+                </svg>
+            </div>
 
-{% block content %}
-<div class="login-container flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <!-- Header -->
-        <div class="text-center">
-            <h2 class="text-3xl font-bold text-primary">
-                Sistema CRM
-            </h2>
-            <p class="mt-2 text-sm text-gray-600">
-                Inicie sesión para acceder al sistema
-            </p>
+            <div class="relative z-10 text-center max-w-md">
+                <!-- Logo -->
+                <div class="w-20 h-20 mx-auto mb-8 rounded-2xl bg-white/10 flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                    </svg>
+                </div>
+
+                <h1 class="text-4xl font-bold text-white mb-4">CRM System</h1>
+                <p class="text-lg text-white/70 mb-8">Sistema de Gestión de Ventas y Clientes</p>
+
+                <!-- Features -->
+                <div class="space-y-4 text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-white/70 text-sm">Gestión completa de clientes</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <span class="text-white/70 text-sm">Pipeline de ventas por etapas</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-white/70 text-sm">Dashboard con KPIs en tiempo real</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <span class="text-white/70 text-sm">Reportes en PDF, Excel y CSV</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Login Form Card -->
-        <div class="bg-white rounded-lg shadow-lg p-8">
-            {% if locked %}
-            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p class="text-red-800 text-sm">
-                    <strong>Cuenta bloqueada:</strong> Demasiados intentos fallidos. 
-                    Por favor, espere 15 minutos antes de intentar nuevamente.
-                </p>
-            </div>
-            {% endif %}
+        <!-- Right Panel - Login Form -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[#f8fafc]">
+            <div class="w-full max-w-sm">
 
-            <form method="post" action="{% url 'users:login' %}" class="space-y-6" id="loginForm">
-                {% csrf_token %}
-                
-                <!-- Username Field -->
-                <div class="floating-label">
-                    <input 
-                        type="text" 
-                        name="username" 
-                        id="id_username"
-                        placeholder=" "
-                        required
-                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
-                        {% if form.username.errors %}border-red-500{% endif %}"
-                        {% if locked %}disabled{% endif %}
-                    >
-                    <label for="id_username">Nombre de usuario o correo</label>
-                    {% if form.username.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.username.errors.0 }}</p>
-                    {% endif %}
+                <!-- Mobile logo -->
+                <div class="lg:hidden text-center mb-8">
+                    <div class="w-14 h-14 mx-auto mb-4 rounded-xl bg-[#1e3a5f] flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-[#1e3a5f]">CRM System</h1>
                 </div>
 
-                <!-- Password Field -->
-                <div class="floating-label">
-                    <input 
-                        type="password" 
-                        name="password" 
-                        id="id_password"
-                        placeholder=" "
-                        required
-                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200
-                        {% if form.password.errors %}border-red-500{% endif %}"
-                        {% if locked %}disabled{% endif %}
-                    >
-                    <label for="id_password">Contraseña</label>
-                    {% if form.password.errors %}
-                    <p class="mt-1 text-sm text-red-600">{{ form.password.errors.0 }}</p>
-                    {% endif %}
+                <!-- Form Header -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-[#1e3a5f]">Bienvenido</h2>
+                    <p class="text-gray-500 mt-1">Ingrese sus credenciales para acceder</p>
                 </div>
+
+                <!-- Locked Alert -->
+                {% if locked %}
+                <div class="mb-6 p-4 bg-red-50 rounded-xl flex items-start gap-3">
+                    <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-medium text-red-800">Cuenta bloqueada</p>
+                        <p class="text-xs text-red-600 mt-0.5">Demasiados intentos fallidos. Espere 15 minutos.</p>
+                    </div>
+                </div>
+                {% endif %}
 
                 <!-- Non-field errors -->
                 {% if form.non_field_errors %}
-                <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div class="mb-6 p-4 bg-red-50 rounded-xl">
                     {% for error in form.non_field_errors %}
-                    <p class="text-sm text-red-800">{{ error }}</p>
+                    <p class="text-sm text-red-700 flex items-center gap-2">
+                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        {{ error }}
+                    </p>
                     {% endfor %}
                 </div>
                 {% endif %}
 
-                <!-- Submit Button -->
-                <div>
-                    <button 
-                        type="submit" 
-                        class="w-full bg-primary text-white py-3 px-4 rounded-lg font-medium
-                        hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
-                        transition-all duration-300 ease-in-out active:scale-95
-                        {% if locked %}opacity-50 cursor-not-allowed{% endif %}"
-                        {% if locked %}disabled{% endif %}
-                        id="submitBtn"
-                    >
-                        <span id="btnText">Iniciar Sesión</span>
+                <!-- Form -->
+                <form method="post" action="{% url 'users:login' %}" id="loginForm" class="space-y-5">
+                    {% csrf_token %}
+
+                    <!-- Username -->
+                    <div>
+                        <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1.5">Usuario</label>
+                        <input type="text" name="username" id="id_username" required
+                               placeholder="Nombre de usuario o correo"
+                               {% if locked %}disabled{% endif %}
+                               class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl
+                                      text-gray-900 placeholder-gray-400
+                                      focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]/20 focus:border-[#2c6e8a]
+                                      transition-all duration-200
+                                      {% if form.username.errors %}border-red-300 focus:ring-red-200 focus:border-red-400{% endif %}">
+                        {% if form.username.errors %}
+                        <p class="mt-1.5 text-xs text-red-600">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label for="id_password" class="block text-sm font-medium text-gray-700 mb-1.5">Contraseña</label>
+                        <div class="relative">
+                            <input type="password" name="password" id="id_password" required
+                                   placeholder="Ingrese su contraseña"
+                                   {% if locked %}disabled{% endif %}
+                                   class="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl
+                                          text-gray-900 placeholder-gray-400 pr-12
+                                          focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]/20 focus:border-[#2c6e8a]
+                                          transition-all duration-200
+                                          {% if form.password.errors %}border-red-300 focus:ring-red-200 focus:border-red-400{% endif %}">
+                            <button type="button" onclick="togglePassword()"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                                <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        {% if form.password.errors %}
+                        <p class="mt-1.5 text-xs text-red-600">{{ form.password.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Forgot password -->
+                    <div class="flex justify-end">
+                        <a href="{% url 'users:password_reset' %}"
+                           class="text-sm text-[#2c6e8a] hover:text-[#1e3a5f] font-medium transition-colors">
+                            ¿Olvidó su contraseña?
+                        </a>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" id="submitBtn"
+                            {% if locked %}disabled{% endif %}
+                            class="w-full py-3.5 px-4 bg-[#1e3a5f] text-white font-semibold rounded-xl
+                                   hover:bg-[#152d4a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1e3a5f]
+                                   transition-all duration-200 active:scale-[0.98]
+                                   disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span id="btnText" class="flex items-center justify-center gap-2">
+                            Iniciar Sesión
+                        </span>
                         <span id="btnLoading" class="hidden">
-                            <svg class="animate-spin h-5 w-5 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg class="animate-spin h-5 w-5 mx-auto text-white" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                         </span>
                     </button>
-                </div>
-            </form>
-        </div>
+                </form>
 
-        <!-- Footer Info -->
-        <div class="text-center text-sm text-gray-600">
-            <p>¿Necesita ayuda? Contacte al administrador del sistema</p>
+                <!-- Footer -->
+                <p class="text-center text-xs text-gray-400 mt-8">
+                    &copy; {% now "Y" %} CRM System. Todos los derechos reservados.
+                </p>
+            </div>
         </div>
     </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/form_validation.js' %}"></script>
-<script>
-    // Show loading spinner on form submit
+    <script>
+    function togglePassword() {
+        const input = document.getElementById('id_password');
+        const icon = document.getElementById('eye-icon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+        } else {
+            input.type = 'password';
+            icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+        }
+    }
+
     document.getElementById('loginForm')?.addEventListener('submit', function() {
         const btn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const btnLoading = document.getElementById('btnLoading');
-        
+        document.getElementById('btnText').classList.add('hidden');
+        document.getElementById('btnLoading').classList.remove('hidden');
         btn.disabled = true;
-        btnText.classList.add('hidden');
-        btnLoading.classList.remove('hidden');
     });
-</script>
-{% endblock %}
+    </script>
+</body>
+</html>

@@ -32,6 +32,9 @@ class RoleRequiredMixin(LoginRequiredMixin):
         
         # Check if user has required role
         if self.allowed_roles and request.user.role not in self.allowed_roles:
+            # Superusers always have access
+            if request.user.is_superuser:
+                return super().dispatch(request, *args, **kwargs)
             raise PermissionDenied("No tiene permisos para acceder a esta página.")
         
         return super().dispatch(request, *args, **kwargs)

@@ -30,15 +30,15 @@ class CustomLoginView(DjangoLoginView):
     redirect_authenticated_user = True
     
     def get_success_url(self):
-        """Redirect to role-appropriate dashboard."""
+        """Redirect to role-appropriate page."""
         user = self.request.user
         
-        if user.role == 'administrator':
+        if user.is_superuser or user.role == 'administrator':
             return reverse_lazy('dashboard:admin_dashboard')
         elif user.role == 'supervisor':
             return reverse_lazy('dashboard:supervisor_dashboard')
         else:  # vendedor
-            return reverse_lazy('dashboard:vendedor_dashboard')
+            return reverse_lazy('clientes:client_list')
     
     def form_invalid(self, form):
         """Handle failed login attempts with rate limiting."""

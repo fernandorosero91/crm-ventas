@@ -25,35 +25,25 @@ Responsive Behavior:
 - Large (1920px+): Fully expanded
 {% endcomment %}
 
-{% with 
-    collapsed=collapsed|default:False
-%}
-
 <!-- Sidebar Container -->
 <aside 
     id="sidebar"
     class="
-        sidebar bg-white border-r border-gray-200 
-        transition-[width] duration-300 ease-in-out
-        fixed lg:static inset-y-0 left-0 z-40
-        {% if collapsed %}
-            w-16
-        {% else %}
-            w-64
-        {% endif %}
-        
-        {# Mobile: hidden by default #}
-        hidden lg:block
-        
+        sidebar bg-white border-r border-gray-200 shadow-xl lg:shadow-none
+        transition-transform duration-300 ease-in-out
+        fixed top-16 bottom-0 left-0 z-40
+        lg:top-0
+        w-64
+        -translate-x-full lg:translate-x-0 lg:static
         {{ classes }}
     "
 >
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
-        <div class="flex items-center space-x-3 overflow-hidden">
+    <div class="flex items-center justify-between h-16 px-2 border-b border-gray-200">
+        <div class="flex items-center space-x-3 overflow-hidden min-w-0">
             <!-- Logo/Icon -->
-            <div class="flex-shrink-0">
-                <svg class="w-8 h-8 text-[#1e3a5f]" fill="currentColor" viewBox="0 0 20 20">
+            <div class="flex-shrink-0 ml-1">
+                <svg class="w-7 h-7 text-[#1e3a5f]" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"></path>
                 </svg>
             </div>
@@ -79,52 +69,152 @@ Responsive Behavior:
     <!-- Navigation Menu -->
     <nav class="flex-1 overflow-y-auto py-4">
         <ul class="space-y-1 px-2">
-            {% for item in menu_items %}
-                {% if not item.roles or user.role in item.roles %}
+            {% if menu_items %}
+                {% for item in menu_items %}
+                    {% if not item.roles or user.role in item.roles %}
+                    <li>
+                        <a 
+                            href="{{ item.url }}"
+                            class="
+                                flex items-center px-3 py-2.5 text-gray-700 rounded-lg
+                                hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200
+                                {% if request.path == item.url %}
+                                    bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white
+                                {% endif %}
+                            "
+                            title="{{ item.label }}"
+                        >
+                            <!-- Icon -->
+                            <span class="flex-shrink-0 w-6 h-6">
+                                {{ item.icon|safe }}
+                            </span>
+                            
+                            <!-- Label -->
+                            <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">
+                                {{ item.label }}
+                            </span>
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {# Default navigation — shown when no menu_items are passed explicitly #}
+
+                {# Dashboard — Admin y Supervisor #}
+                {% if user.role == 'administrator' or user.role == 'supervisor' or user.is_superuser %}
                 <li>
-                    <a 
-                        href="{{ item.url }}"
-                        class="
-                            flex items-center px-3 py-2.5 text-gray-700 rounded-lg
-                            hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200
-                            {% if request.path == item.url %}
-                                bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white
-                            {% endif %}
-                        "
-                        title="{{ item.label }}"
-                    >
-                        <!-- Icon -->
+                    <a href="/dashboard/"
+                       class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':11' == '/dashboard/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
+                       title="Dashboard">
                         <span class="flex-shrink-0 w-6 h-6">
-                            {{ item.icon|safe }}
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                            </svg>
                         </span>
-                        
-                        <!-- Label -->
-                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">
-                            {{ item.label }}
-                        </span>
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Dashboard</span>
                     </a>
                 </li>
                 {% endif %}
-            {% endfor %}
+
+                {# Clientes — Todos los roles #}
+                <li>
+                    <a href="/clientes/"
+                       class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':10' == '/clientes/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
+                       title="Clientes">
+                        <span class="flex-shrink-0 w-6 h-6">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Clientes</span>
+                    </a>
+                </li>
+
+                {# Ventas — Todos los roles #}
+                <li>
+                    <a href="/ventas/"
+                       class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':8' == '/ventas/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
+                       title="Ventas">
+                        <span class="flex-shrink-0 w-6 h-6">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Ventas</span>
+                    </a>
+                </li>
+
+                {# Notificaciones — Todos los roles #}
+                <li>
+                    <a href="/notifications/"
+                       class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':15' == '/notifications/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
+                       title="Notificaciones">
+                        <span class="flex-shrink-0 w-6 h-6">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Notificaciones</span>
+                    </a>
+                </li>
+
+                {# Reportes — Admin y Supervisor #}
+                {% if user.role == 'administrator' or user.role == 'supervisor' or user.is_superuser %}
+                <li>
+                    <a href="/reports/"
+                       class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':9' == '/reports/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
+                       title="Reportes">
+                        <span class="flex-shrink-0 w-6 h-6">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Reportes</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                {# Usuarios — Admin only #}
+                {% if user.role == 'administrator' or user.is_superuser %}
+                <li>
+                    <a href="/users/users/"
+                       class="flex items-center px-3 py-2.5 text-gray-700 rounded-lg hover:bg-gray-100 hover:text-[#1e3a5f] transition-all duration-200 {% if request.path|slice:':13' == '/users/users/' %}bg-[#1e3a5f] text-white hover:bg-[#152d4a] hover:text-white{% endif %}"
+                       title="Usuarios">
+                        <span class="flex-shrink-0 w-6 h-6">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                            </svg>
+                        </span>
+                        <span class="sidebar-text ml-3 whitespace-nowrap overflow-hidden">Usuarios</span>
+                    </a>
+                </li>
+                {% endif %}
+            {% endif %}
         </ul>
     </nav>
     
     <!-- Sidebar Footer -->
-    <div class="border-t border-gray-200 p-4">
-        <div class="flex items-center space-x-3 overflow-hidden">
+    <div class="border-t border-gray-200 p-2">
+        <div class="flex items-center space-x-3 overflow-hidden justify-center lg:justify-start lg:px-2">
             <!-- User Avatar -->
             <div class="flex-shrink-0">
                 {% if user.avatar %}
-                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="w-10 h-10 rounded-full">
+                <img src="{{ user.avatar.url }}" alt="{{ user.get_full_name }}" class="w-9 h-9 rounded-full">
                 {% else %}
-                <div class="w-10 h-10 rounded-full bg-[#1e3a5f] flex items-center justify-center text-white font-medium">
+                <div class="w-9 h-9 rounded-full bg-[#1e3a5f] flex items-center justify-center text-white font-medium text-sm">
                     {{ user.first_name.0|default:user.username.0|upper }}
                 </div>
                 {% endif %}
             </div>
             
             <!-- User Info -->
-            <div class="sidebar-text flex-1 overflow-hidden">
+            <div class="sidebar-text flex-1 overflow-hidden min-w-0">
                 <p class="text-sm font-medium text-gray-900 truncate">
                     {{ user.get_full_name|default:user.username }}
                 </p>
@@ -139,38 +229,39 @@ Responsive Behavior:
 <!-- Mobile Overlay -->
 <div 
     id="sidebar-overlay"
-    class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-30 lg:hidden"
+    class="hidden fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-30 lg:hidden"
     onclick="closeMobileSidebar()"
 ></div>
 
 <!-- Sidebar JavaScript -->
 <script>
-// Toggle sidebar collapse/expand (Desktop/Tablet)
+// Toggle sidebar on desktop (collapse/expand)
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
     
-    if (sidebar.classList.contains('w-64')) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
+    if (sidebar.classList.contains('lg:w-64')) {
+        sidebar.classList.remove('lg:w-64');
+        sidebar.classList.add('lg:w-16');
+        sidebarTexts.forEach(text => text.classList.add('lg:hidden'));
+        localStorage.setItem('sidebarCollapsed', 'true');
     } else {
-        sidebar.classList.remove('w-16');
-        sidebar.classList.add('w-64');
-        sidebarTexts.forEach(text => text.classList.remove('hidden'));
+        sidebar.classList.remove('lg:w-16');
+        sidebar.classList.add('lg:w-64');
+        sidebarTexts.forEach(text => text.classList.remove('lg:hidden'));
+        localStorage.setItem('sidebarCollapsed', 'false');
     }
-    
-    // Save state to localStorage
-    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('w-16'));
 }
 
-// Open mobile sidebar
+// Open mobile sidebar (slide in from left)
 function openMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
-    sidebar.classList.remove('hidden');
+    sidebar.classList.remove('-translate-x-full');
+    sidebar.classList.add('translate-x-0');
     overlay.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden', 'lg:overflow-auto');
 }
 
 // Close mobile sidebar
@@ -178,56 +269,42 @@ function closeMobileSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebar-overlay');
     
-    sidebar.classList.add('hidden');
+    sidebar.classList.add('-translate-x-full');
+    sidebar.classList.remove('translate-x-0');
     overlay.classList.add('hidden');
+    document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
 }
 
-// Initialize sidebar state from localStorage
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
-    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-    
-    // Only apply saved state on desktop/tablet
-    if (window.innerWidth >= 1024 && isCollapsed) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
-    }
-    
-    // Auto-collapse on tablet
-    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
-    }
-});
-
-// Handle window resize
-window.addEventListener('resize', function() {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarTexts = sidebar.querySelectorAll('.sidebar-text');
-    
-    // Auto-collapse on tablet
-    if (window.innerWidth >= 768 && window.innerWidth < 1024) {
-        sidebar.classList.remove('w-64');
-        sidebar.classList.add('w-16');
-        sidebarTexts.forEach(text => text.classList.add('hidden'));
-    }
-    
-    // Auto-expand on desktop if not manually collapsed
-    if (window.innerWidth >= 1024 && localStorage.getItem('sidebarCollapsed') !== 'true') {
-        sidebar.classList.remove('w-16');
-        sidebar.classList.add('w-64');
-        sidebarTexts.forEach(text => text.classList.remove('hidden'));
-    }
-});
-
-// Connect to mobile menu toggle button
+// Connect mobile menu toggle button
 const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
 if (mobileMenuToggle) {
     mobileMenuToggle.addEventListener('click', openMobileSidebar);
 }
-</script>
 
-{% endwith %}
+// Close sidebar when clicking a nav link on mobile
+document.querySelectorAll('#sidebar nav a').forEach(function(link) {
+    link.addEventListener('click', function() {
+        if (window.innerWidth < 1024) {
+            closeMobileSidebar();
+        }
+    });
+});
+
+// Close sidebar on window resize to desktop
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 1024) {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        sidebar.classList.remove('translate-x-0');
+        overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden', 'lg:overflow-auto');
+    }
+});
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && window.innerWidth < 1024) {
+        closeMobileSidebar();
+    }
+});
+</script>

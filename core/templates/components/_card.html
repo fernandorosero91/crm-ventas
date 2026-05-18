@@ -21,11 +21,6 @@ Parameters:
 - padding: sm|md|lg (default: md)
 {% endcomment %}
 
-{% with 
-    hover=hover|default:True
-    padding=padding|default:'md'
-%}
-
 <div class="
     bg-white rounded-lg shadow-md
     {% if hover %}
@@ -94,5 +89,3 @@ Parameters:
     </div>
     {% endif %}
 </div>
-
-{% endwith %}

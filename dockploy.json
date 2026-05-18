@@ -1,0 +1,49 @@
+{
+  "name": "crm-system",
+  "description": "Sistema de Gestión de Ventas y Clientes (CRM)",
+  "version": "1.0.0",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "deploy": {
+    "replicas": 1,
+    "port": 8000,
+    "healthcheck": {
+      "path": "/health/",
+      "interval": 30,
+      "timeout": 10,
+      "retries": 3
+    }
+  },
+  "environment": {
+    "DJANGO_SETTINGS_MODULE": "crm.settings.production",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1"
+  },
+  "services": {
+    "database": {
+      "type": "postgresql",
+      "version": "15"
+    },
+    "cache": {
+      "type": "redis",
+      "version": "7"
+    }
+  },
+  "volumes": [
+    {
+      "name": "static_files",
+      "mountPath": "/app/staticfiles"
+    },
+    {
+      "name": "media_files",
+      "mountPath": "/app/media"
+    }
+  ],
+  "proxy": {
+    "enabled": true,
+    "port": 80,
+    "ssl": true
+  }
+}

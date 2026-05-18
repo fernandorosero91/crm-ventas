@@ -11,6 +11,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Initialize environment variables
 env = environ.Env()
 
+# Read .env file if it exists
+env.read_env(BASE_DIR / '.env', overwrite=True)
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -115,6 +118,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SESSION_COOKIE_AGE = 1800  # 30 minutes in seconds
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Authentication URLs
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'
+LOGOUT_REDIRECT_URL = '/users/login/'
 
 # Pagination settings
 DEFAULT_PAGE_SIZE = 15

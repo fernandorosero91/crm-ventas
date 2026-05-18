@@ -26,12 +26,6 @@ Special types for CRM:
 - cierre_perdido: Red badge for Cierre Perdido stage
 {% endcomment %}
 
-{% with 
-    type=type|default:'gray'
-    size=size|default:'md'
-    rounded=rounded|default:True
-%}
-
 <span class="
     inline-flex items-center font-medium
     {% if rounded %}rounded-full{% else %}rounded{% endif %}
@@ -70,5 +64,3 @@ Special types for CRM:
 ">
     {{ text }}
 </span>
-
-{% endwith %}

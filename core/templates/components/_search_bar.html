@@ -20,12 +20,6 @@ Parameters:
 - classes: Additional CSS classes (optional)
 {% endcomment %}
 
-{% with 
-    placeholder=placeholder|default:'Buscar...'
-    name=name|default:'search'
-    show_filters=show_filters|default:False
-%}
-
 <div class="relative {{ classes }}">
     <form method="get" action="" class="flex items-center gap-2">
         <!-- Search Input Container -->
@@ -164,5 +158,3 @@ function toggleFilters(targetId) {
 }
 </script>
 {% endif %}
-
-{% endwith %}

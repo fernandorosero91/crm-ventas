@@ -17,6 +17,7 @@ from core.mixins import (
     PaginationMixin,
     RoleRequiredMixin,
 )
+from .forms import OpportunityForm, FollowUpForm
 from .models import Opportunity, FollowUp, StageChange
 from .services import get_opportunities_for_user, get_pipeline_summary
 
@@ -191,7 +192,7 @@ class OpportunityListView(LoginRequiredMixin, PaginationMixin, ListView):
 # 12.2 — OpportunityCreateView and OpportunityUpdateView
 # ---------------------------------------------------------------------------
 
-class OpportunityCreateView(LoginRequiredMixin, RoleRequiredMixin, CreateView):
+class OpportunityCreateView(RoleRequiredMixin, CreateView):
     """
     Create a new sales opportunity.
     
@@ -410,7 +411,7 @@ class OpportunityStageChangeView(LoginRequiredMixin, View):
 # 12.4 — FollowUpCreateView
 # ---------------------------------------------------------------------------
 
-class FollowUpCreateView(LoginRequiredMixin, RoleRequiredMixin, CreateView):
+class FollowUpCreateView(RoleRequiredMixin, CreateView):
     """
     Create a new follow-up record.
     
