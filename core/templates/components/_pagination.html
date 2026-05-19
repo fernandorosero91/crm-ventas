@@ -1,0 +1,120 @@
+{% comment %}
+Reusable Pagination Component
+
+Usage:
+{% include 'components/_pagination.html' with 
+    page_obj=page_obj
+    page_sizes='15,30,50'
+    show_page_size=True
+%}
+
+Parameters:
+- page_obj: Django paginator page object (required)
+- page_sizes: Comma-separated page size options (default: '15,30,50')
+- show_page_size: Show page size selector (default: True)
+- show_info: Show "Showing X to Y of Z" info (default: True)
+- classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% if page_obj %}
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 {{ classes }}">
+    
+    {% if show_info %}
+    <!-- Pagination Info -->
+    <div class="text-sm text-gray-700">
+        Mostrando 
+        <span class="font-medium">{{ page_obj.start_index }}</span>
+        a 
+        <span class="font-medium">{{ page_obj.end_index }}</span>
+        de 
+        <span class="font-medium">{{ page_obj.paginator.count }}</span>
+        resultados
+    </div>
+    {% endif %}
+    
+    <div class="flex items-center gap-4">
+        {% if show_page_size %}
+        <!-- Page Size Selector -->
+        <div class="flex items-center gap-2">
+            <label for="page-size" class="text-sm text-gray-700">Por página:</label>
+            <select 
+                id="page-size" 
+                name="page_size"
+                onchange="changePageSize(this.value)"
+                class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+                {% for size in page_sizes %}
+                <option value="{{ size }}" {% if request.GET.page_size == size %}selected{% endif %}>
+                    {{ size }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        
+        <!-- Pagination Controls -->
+        <nav class="flex items-center gap-1" aria-label="Pagination">
+            <!-- Previous Button -->
+            {% if page_obj.has_previous %}
+            <a 
+                href="?page={{ page_obj.previous_page_number }}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </a>
+            {% else %}
+            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </span>
+            {% endif %}
+            
+            <!-- Page Numbers -->
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="px-4 py-2 text-sm font-medium text-white bg-[#1e3a5f] border border-[#1e3a5f] rounded-lg">
+                    {{ num }}
+                </span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a 
+                    href="?page={{ num }}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                    {{ num }}
+                </a>
+                {% endif %}
+            {% endfor %}
+            
+            <!-- Next Button -->
+            {% if page_obj.has_next %}
+            <a 
+                href="?page={{ page_obj.next_page_number }}{% if request.GET.page_size %}&page_size={{ request.GET.page_size }}{% endif %}{% for key, value in request.GET.items %}{% if key != 'page' and key != 'page_size' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+            {% else %}
+            <span class="px-3 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-lg cursor-not-allowed">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </span>
+            {% endif %}
+        </nav>
+    </div>
+</div>
+
+<script>
+function changePageSize(size) {
+    const url = new URL(window.location);
+    url.searchParams.set('page_size', size);
+    url.searchParams.set('page', '1'); // Reset to first page
+    window.location.href = url.toString();
+}
+</script>
+{% endif %}

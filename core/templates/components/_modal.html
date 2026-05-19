@@ -1,0 +1,146 @@
+{% comment %}
+Reusable Modal Component
+
+Usage:
+{% include 'components/_modal.html' with 
+    modal_id='myModal'
+    title='Modal Title'
+    body_content='Modal body content'
+    footer_content='<button>...</button>'
+    size='md'
+    close_on_backdrop=True
+%}
+
+Parameters:
+- modal_id: Unique modal ID (required)
+- title: Modal title (optional)
+- body_content: Modal body content (optional, can use block instead)
+- footer_content: Modal footer with action buttons (optional)
+- size: sm|md|lg|xl (default: md)
+- close_on_backdrop: Close modal when clicking backdrop (default: True)
+- type: default|confirmation|alert (default: default)
+
+JavaScript to open modal:
+document.getElementById('myModal').classList.remove('hidden');
+
+JavaScript to close modal:
+document.getElementById('myModal').classList.add('hidden');
+{% endcomment %}
+
+<!-- Modal Backdrop and Container -->
+<div 
+    id="{{ modal_id }}" 
+    class="hidden fixed inset-0 z-50 overflow-y-auto"
+    aria-labelledby="{{ modal_id }}-title" 
+    role="dialog" 
+    aria-modal="true"
+>
+    <!-- Backdrop -->
+    <div 
+        class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity duration-200 ease-out"
+        {% if close_on_backdrop %}
+        onclick="document.getElementById('{{ modal_id }}').classList.add('hidden')"
+        {% endif %}
+    ></div>
+    
+    <!-- Modal Content -->
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <!-- Centering trick -->
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <!-- Modal Panel -->
+        <div class="
+            inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl 
+            transform transition-all duration-200 ease-out sm:my-8 sm:align-middle
+            {% if size == 'sm' %}
+                sm:max-w-sm
+            {% elif size == 'lg' %}
+                sm:max-w-2xl
+            {% elif size == 'xl' %}
+                sm:max-w-4xl
+            {% else %}
+                sm:max-w-lg
+            {% endif %}
+            w-full
+        ">
+            {% if title %}
+            <!-- Modal Header -->
+            <div class="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-start justify-between">
+                    <h3 class="text-lg font-semibold text-gray-900 flex items-center" id="{{ modal_id }}-title">
+                        {% if type == 'confirmation' %}
+                        <svg class="w-6 h-6 text-yellow-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        {% elif type == 'alert' %}
+                        <svg class="w-6 h-6 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        {% endif %}
+                        {{ title }}
+                    </h3>
+                    <button 
+                        type="button"
+                        onclick="document.getElementById('{{ modal_id }}').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                    >
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Modal Body -->
+            <div class="bg-white px-6 {% if not title %}pt-5{% endif %} pb-4 sm:p-6">
+                {% if body_content %}
+                    {{ body_content|safe }}
+                {% else %}
+                    {% block modal_body %}
+                    <!-- Modal body content goes here -->
+                    {% endblock %}
+                {% endif %}
+            </div>
+            
+            {% if footer_content %}
+            <!-- Modal Footer -->
+            <div class="bg-gray-50 px-6 py-4 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                {{ footer_content|safe }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for ESC key handling -->
+<script>
+(function() {
+    const modalId = '{{ modal_id }}';
+    const modal = document.getElementById(modalId);
+    
+    if (modal) {
+        // Close on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+            }
+        });
+        
+        // Prevent body scroll when modal is open
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    if (modal.classList.contains('hidden')) {
+                        document.body.style.overflow = '';
+                    } else {
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+            });
+        });
+        
+        observer.observe(modal, { attributes: true });
+    }
+})();
+</script>

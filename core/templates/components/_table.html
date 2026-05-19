@@ -1,0 +1,187 @@
+{% comment %}
+Reusable Advanced Table Component
+
+Usage:
+{% include 'components/_table.html' with 
+    headers=headers_list
+    rows=data_rows
+    sortable=True
+    loading=False
+    empty_message='No hay datos disponibles'
+%}
+
+Parameters:
+- headers: List of dicts with 'label', 'key', 'sortable' keys
+  Example: [{'label': 'Nombre', 'key': 'name', 'sortable': True}, ...]
+- rows: List of data rows (list of dicts or objects)
+- sortable: Enable sortable columns (default: True)
+- loading: Show loading skeleton (default: False)
+- empty_message: Message when no data (default: 'No hay datos disponibles')
+- striped: Alternate row colors (default: True)
+- hover: Enable row hover effect (default: True)
+- responsive: Enable horizontal scroll on mobile (default: True)
+{% endcomment %}
+
+<div class="{% if responsive %}overflow-x-auto{% endif %} rounded-lg border border-gray-200">
+    <table class="min-w-full divide-y divide-gray-200">
+        <!-- Table Header -->
+        <thead class="bg-gray-50">
+            <tr>
+                {% for header in headers %}
+                <th 
+                    scope="col" 
+                    class="
+                        px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider
+                        {% if sortable and header.sortable %}
+                            cursor-pointer select-none hover:bg-gray-100 transition-colors duration-150
+                        {% endif %}
+                    "
+                    {% if sortable and header.sortable %}
+                    onclick="sortTable(this, '{{ header.key }}')"
+                    data-sort-key="{{ header.key }}"
+                    data-sort-direction="none"
+                    {% endif %}
+                >
+                    <div class="flex items-center justify-between">
+                        <span>{{ header.label }}</span>
+                        {% if sortable and header.sortable %}
+                        <span class="ml-2 sort-indicator">
+                            <!-- Sort arrows -->
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                            </svg>
+                        </span>
+                        {% endif %}
+                    </div>
+                </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        
+        <!-- Table Body -->
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% if loading %}
+                <!-- Loading Skeleton -->
+                {% for i in "12345" %}
+                <tr class="animate-pulse">
+                    {% for header in headers %}
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            {% elif rows %}
+                <!-- Data Rows -->
+                {% for row in rows %}
+                <tr class="
+                    {% if striped and forloop.counter|divisibleby:2 %}bg-gray-50{% endif %}
+                    {% if hover %}hover:bg-gray-100 transition-colors duration-150{% endif %}
+                ">
+                    {% for header in headers %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {% if header.key in row %}
+                            {{ row|get_item:header.key }}
+                        {% else %}
+                                {% if row|attr:header.key %}
+                                    {{ row|attr:header.key }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            {% else %}
+                <!-- Empty State -->
+                <tr>
+                    <td colspan="{{ headers|length }}" class="px-6 py-12 text-center">
+                        <div class="flex flex-col items-center justify-center text-gray-500">
+                            <svg class="w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                            </svg>
+                            <p class="text-lg font-medium">{{ empty_message }}</p>
+                            <p class="text-sm mt-1">No se encontraron registros para mostrar</p>
+                        </div>
+                    </td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+{% if sortable %}
+<!-- Sorting JavaScript -->
+<script>
+function sortTable(headerElement, sortKey) {
+    const table = headerElement.closest('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(row => !row.classList.contains('animate-pulse'));
+    
+    if (rows.length === 0) return;
+    
+    // Get current sort direction
+    let direction = headerElement.getAttribute('data-sort-direction');
+    
+    // Reset all other headers
+    table.querySelectorAll('th[data-sort-key]').forEach(th => {
+        if (th !== headerElement) {
+            th.setAttribute('data-sort-direction', 'none');
+            const indicator = th.querySelector('.sort-indicator svg');
+            if (indicator) {
+                indicator.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>';
+                indicator.classList.remove('text-blue-600');
+                indicator.classList.add('text-gray-400');
+            }
+        }
+    });
+    
+    // Toggle direction
+    if (direction === 'none' || direction === 'desc') {
+        direction = 'asc';
+    } else {
+        direction = 'desc';
+    }
+    
+    headerElement.setAttribute('data-sort-direction', direction);
+    
+    // Update sort indicator
+    const indicator = headerElement.querySelector('.sort-indicator svg');
+    if (indicator) {
+        indicator.classList.remove('text-gray-400');
+        indicator.classList.add('text-blue-600');
+        if (direction === 'asc') {
+            indicator.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>';
+        } else {
+            indicator.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
+        }
+    }
+    
+    // Get column index
+    const columnIndex = Array.from(headerElement.parentElement.children).indexOf(headerElement);
+    
+    // Sort rows
+    rows.sort((a, b) => {
+        const aValue = a.children[columnIndex].textContent.trim();
+        const bValue = b.children[columnIndex].textContent.trim();
+        
+        // Try to parse as number
+        const aNum = parseFloat(aValue.replace(/[^0-9.-]/g, ''));
+        const bNum = parseFloat(bValue.replace(/[^0-9.-]/g, ''));
+        
+        let comparison = 0;
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            comparison = aNum - bNum;
+        } else {
+            comparison = aValue.localeCompare(bValue, 'es', { sensitivity: 'base' });
+        }
+        
+        return direction === 'asc' ? comparison : -comparison;
+    });
+    
+    // Re-append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+}
+</script>
+{% endif %}

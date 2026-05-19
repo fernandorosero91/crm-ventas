@@ -1,0 +1,74 @@
+{% comment %}
+Reusable Empty State Component
+
+Usage:
+{% include 'components/_empty_state.html' with 
+    title='No hay clientes'
+    message='Comienza agregando tu primer cliente'
+    icon='<svg>...</svg>'
+    cta_text='Agregar Cliente'
+    cta_url='/clientes/crear/'
+%}
+
+Parameters:
+- title: Main heading (required)
+- message: Descriptive message (optional)
+- icon: SVG icon HTML (optional, default icon provided)
+- cta_text: Call-to-action button text (optional)
+- cta_url: Call-to-action button URL (optional)
+- cta_onclick: JavaScript onclick handler (optional, alternative to cta_url)
+- classes: Additional CSS classes (optional)
+{% endcomment %}
+
+<div class="flex flex-col items-center justify-center py-12 px-4 text-center {{ classes }}">
+    <!-- Icon -->
+    <div class="mb-4 text-gray-300">
+        {% if icon %}
+            {{ icon|safe }}
+        {% else %}
+        <!-- Default empty box icon -->
+        <svg class="w-24 h-24 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+        </svg>
+        {% endif %}
+    </div>
+    
+    <!-- Title -->
+    <h3 class="text-xl font-semibold text-gray-900 mb-2">
+        {{ title }}
+    </h3>
+    
+    <!-- Message -->
+    {% if message %}
+    <p class="text-gray-600 mb-6 max-w-md">
+        {{ message }}
+    </p>
+    {% endif %}
+    
+    <!-- Call to Action Button -->
+    {% if cta_text %}
+    <div class="mt-4">
+        {% if cta_url %}
+        <a 
+            href="{{ cta_url }}"
+            class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-[#1e3a5f] rounded-lg hover:bg-[#152d4a] transition-all duration-300 ease-in-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1e3a5f]"
+        >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            {{ cta_text }}
+        </a>
+        {% elif cta_onclick %}
+        <button 
+            onclick="{{ cta_onclick }}"
+            class="inline-flex items-center px-6 py-3 text-base font-medium text-white bg-[#1e3a5f] rounded-lg hover:bg-[#152d4a] transition-all duration-300 ease-in-out active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1e3a5f]"
+        >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            {{ cta_text }}
+        </button>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>

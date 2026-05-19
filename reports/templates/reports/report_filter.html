@@ -1,0 +1,478 @@
+{% extends 'base.html' %}
+{% load crm_components %}
+
+{% block title %}Reportes — CRM{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-[#1e3a5f]">Reportes</h1>
+      <p class="text-sm text-gray-500 mt-1">Genera y exporta reportes filtrados del sistema</p>
+    </div>
+  </div>
+
+  <!-- Filter Card -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <h2 class="text-base font-semibold text-[#1e3a5f] flex items-center gap-2">
+        <svg class="w-5 h-5 text-[#2c6e8a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+        </svg>
+        Filtros del reporte
+      </h2>
+    </div>
+
+    <form method="post" id="report-form" class="p-6">
+      {% csrf_token %}
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+      <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+        <!-- Report Type -->
+        <div class="space-y-1">
+          <label for="{{ form.report_type.id_for_label }}"
+                 class="block text-sm font-medium text-gray-700">
+            {{ form.report_type.label }}
+          </label>
+          {{ form.report_type }}
+          {% if form.report_type.errors %}
+            <p class="text-xs text-red-600">{{ form.report_type.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Seller -->
+        <div class="space-y-1">
+          <label for="{{ form.seller.id_for_label }}"
+                 class="block text-sm font-medium text-gray-700">
+            {{ form.seller.label }}
+          </label>
+          {{ form.seller }}
+          {% if form.seller.errors %}
+            <p class="text-xs text-red-600">{{ form.seller.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Status / Stage -->
+        <div class="space-y-1">
+          <label for="{{ form.status.id_for_label }}"
+                 class="block text-sm font-medium text-gray-700">
+            <span id="status-label">{{ form.status.label }}</span>
+          </label>
+          {{ form.status }}
+          {% if form.status.errors %}
+            <p class="text-xs text-red-600">{{ form.status.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Date From -->
+        <div class="space-y-1">
+          <label for="{{ form.date_from.id_for_label }}"
+                 class="block text-sm font-medium text-gray-700">
+            {{ form.date_from.label }}
+          </label>
+          {{ form.date_from }}
+          {% if form.date_from.errors %}
+            <p class="text-xs text-red-600">{{ form.date_from.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Date To -->
+        <div class="space-y-1">
+          <label for="{{ form.date_to.id_for_label }}"
+                 class="block text-sm font-medium text-gray-700">
+            {{ form.date_to.label }}
+          </label>
+          {{ form.date_to }}
+          {% if form.date_to.errors %}
+            <p class="text-xs text-red-600">{{ form.date_to.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Format -->
+        <div class="space-y-1">
+          <label for="{{ form.format.id_for_label }}"
+                 class="block text-sm font-medium text-gray-700">
+            {{ form.format.label }}
+          </label>
+          {{ form.format }}
+          {% if form.format.errors %}
+            <p class="text-xs text-red-600">{{ form.format.errors.0 }}</p>
+          {% endif %}
+        </div>
+
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-3 mt-6 pt-5 border-t border-gray-100">
+        <button type="submit" name="format_action" value="preview"
+                onclick="document.getElementById('id_format').value='preview'"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white
+                       bg-[#1e3a5f] rounded-lg hover:bg-[#152d4a] transition-all duration-300
+                       active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Vista Previa
+        </button>
+
+        <button type="submit"
+                onclick="document.getElementById('id_format').value='pdf'"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white
+                       bg-red-600 rounded-lg hover:bg-red-700 transition-all duration-300
+                       active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+          </svg>
+          Exportar PDF
+        </button>
+
+        <button type="submit"
+                onclick="document.getElementById('id_format').value='excel'"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white
+                       bg-[#10b981] rounded-lg hover:bg-emerald-700 transition-all duration-300
+                       active:scale-95 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          Exportar Excel
+        </button>
+
+        <button type="submit"
+                onclick="document.getElementById('id_format').value='csv'"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-[#1e3a5f]
+                       bg-white border border-[#1e3a5f] rounded-lg hover:bg-gray-50
+                       transition-all duration-300 active:scale-95
+                       focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          Exportar CSV
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ------------------------------------------------------------------ -->
+  <!-- Preview Section (only shown after a successful POST with preview)   -->
+  <!-- ------------------------------------------------------------------ -->
+  {% if show_preview %}
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden" id="preview-section">
+
+    <!-- Preview Header -->
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div>
+        <h2 class="text-base font-semibold text-[#1e3a5f]">
+          Vista Previa —
+          {% if report_type == 'clients' %}Clientes
+          {% elif report_type == 'opportunities' %}Oportunidades
+          {% elif report_type == 'followups' %}Seguimientos
+          {% elif report_type == 'sales' %}Ventas Cerradas
+          {% endif %}
+        </h2>
+        <p class="text-sm text-gray-500 mt-0.5">
+          {{ record_count }} registro{{ record_count|pluralize }} encontrado{{ record_count|pluralize }}
+        </p>
+      </div>
+
+      <!-- Summary Stats -->
+      <div class="flex flex-wrap gap-4 text-sm">
+        {% if report_type == 'clients' %}
+          <span class="inline-flex items-center gap-1 text-gray-600">
+            <span class="font-semibold text-[#1e3a5f]">{{ summary.active }}</span> activos
+          </span>
+          <span class="inline-flex items-center gap-1 text-gray-600">
+            <span class="font-semibold text-gray-500">{{ summary.inactive }}</span> inactivos
+          </span>
+        {% elif report_type == 'opportunities' %}
+          <span class="inline-flex items-center gap-1 text-gray-600">
+            Total estimado:
+            <span class="font-semibold text-[#10b981]">${{ summary.total_value|floatformat:0 }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1 text-gray-600">
+            Ponderado:
+            <span class="font-semibold text-[#2c6e8a]">${{ summary.total_weighted|floatformat:0 }}</span>
+          </span>
+          <span class="inline-flex items-center gap-1 text-gray-600">
+            Prob. promedio:
+            <span class="font-semibold text-[#1e3a5f]">{{ summary.avg_probability }}%</span>
+          </span>
+        {% elif report_type == 'followups' %}
+          <span class="inline-flex items-center gap-1 text-gray-600">
+            Total: <span class="font-semibold text-[#1e3a5f]">{{ summary.total }}</span>
+          </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Results Table -->
+    {% if results %}
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            {% if report_type == 'clients' %}
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Email</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Industria</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Vendedor</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Creado</th>
+            {% elif report_type == 'opportunities' %}
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Título</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+              <th class="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Est.</th>
+              <th class="px-5 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Prob.</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Etapa</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Vendedor</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Cierre Esp.</th>
+            {% elif report_type == 'followups' %}
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente / Oportunidad</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Notas</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Próxima acción</th>
+              <th class="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Creado por</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for row in results %}
+          <tr class="hover:bg-gray-50 transition-colors duration-150">
+
+            {% if report_type == 'clients' %}
+              <td class="px-5 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ row.company_name }}</td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700">{{ row.contact_name }}</td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">
+                <a href="mailto:{{ row.email }}" class="hover:text-[#2c6e8a] transition-colors">{{ row.email }}</a>
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell">{{ row.industry|default:"—" }}</td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell">
+                {{ row.assigned_vendedor.get_full_name|default:row.assigned_vendedor.username|default:"—" }}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap">
+                {% if row.is_active %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Activo</span>
+                {% else %}
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Inactivo</span>
+                {% endif %}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{{ row.created_at|date:"d/m/Y" }}</td>
+
+            {% elif report_type == 'opportunities' %}
+              <td class="px-5 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ row.title }}</td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700">{{ row.client.company_name }}</td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-right font-medium text-[#10b981]">
+                ${{ row.estimated_value|floatformat:0 }}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-center text-gray-700 hidden md:table-cell">{{ row.probability }}%</td>
+              <td class="px-5 py-3 whitespace-nowrap">
+                {% with stage=row.stage %}
+                  {% if stage == 'prospeccion' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Prospección</span>
+                  {% elif stage == 'calificacion' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Calificación</span>
+                  {% elif stage == 'propuesta' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Propuesta</span>
+                  {% elif stage == 'negociacion' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">Negociación</span>
+                  {% elif stage == 'cierre_ganado' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Cierre Ganado</span>
+                  {% elif stage == 'cierre_perdido' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Cierre Perdido</span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">{{ stage }}</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell">
+                {{ row.assigned_vendedor.get_full_name|default:row.assigned_vendedor.username|default:"—" }}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{{ row.expected_close_date|date:"d/m/Y" }}</td>
+
+            {% elif report_type == 'followups' %}
+              <td class="px-5 py-3 whitespace-nowrap">
+                {% with ftype=row.follow_up_type %}
+                  {% if ftype == 'call' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Llamada</span>
+                  {% elif ftype == 'email' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#2c6e8a] bg-opacity-10 text-[#2c6e8a]">Email</span>
+                  {% elif ftype == 'meeting' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Reunión</span>
+                  {% else %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Otro</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700">
+                {% if row.client %}{{ row.client.company_name }}{% elif row.opportunity %}{{ row.opportunity.title }}{% else %}—{% endif %}
+              </td>
+              <td class="px-5 py-3 text-sm text-gray-600 hidden md:table-cell max-w-xs truncate">
+                {{ row.notes|truncatechars:80 }}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500">{{ row.date|date:"d/m/Y H:i" }}</td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
+                {{ row.next_action_date|date:"d/m/Y"|default:"—" }}
+              </td>
+              <td class="px-5 py-3 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell">
+                {{ row.created_by.get_full_name|default:row.created_by.username|default:"—" }}
+              </td>
+            {% endif %}
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between">
+      <p class="text-sm text-gray-600">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        &mdash; {{ record_count }} registro{{ record_count|pluralize }} en total
+      </p>
+      <div class="flex items-center gap-1">
+        {% if page_obj.has_previous %}
+        <button form="report-form" type="submit" name="page" value="{{ page_obj.previous_page_number }}"
+                class="px-3 py-1.5 text-sm text-[#2c6e8a] border border-gray-300 rounded-lg
+                       hover:bg-gray-50 transition-colors">
+          &laquo; Anterior
+        </button>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <span class="px-3 py-1.5 text-sm font-medium text-white bg-[#1e3a5f] rounded-lg">{{ num }}</span>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <button form="report-form" type="submit" name="page" value="{{ num }}"
+                  class="px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-lg
+                         hover:bg-gray-50 transition-colors">
+            {{ num }}
+          </button>
+          {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <button form="report-form" type="submit" name="page" value="{{ page_obj.next_page_number }}"
+                class="px-3 py-1.5 text-sm text-[#2c6e8a] border border-gray-300 rounded-lg
+                       hover:bg-gray-50 transition-colors">
+          Siguiente &raquo;
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty state -->
+    <div class="px-6 py-16 text-center">
+      <svg class="mx-auto w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+      <p class="mt-4 text-sm font-medium text-gray-500">No se encontraron registros con los filtros aplicados.</p>
+      <p class="mt-1 text-xs text-gray-400">Intenta ampliar el rango de fechas o cambiar los filtros.</p>
+    </div>
+    {% endif %}
+
+  </div>
+  {% endif %}
+  <!-- /preview section -->
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/**
+ * Dynamically update the Status/Stage label and options
+ * based on the selected report type.
+ */
+(function () {
+  const reportTypeSelect = document.getElementById('id_report_type');
+  const statusSelect = document.getElementById('id_status');
+  const statusLabel = document.getElementById('status-label');
+
+  const statusOptions = {
+    clients: {
+      label: 'Estado',
+      options: [
+        { value: '', text: 'Todos' },
+        { value: 'active', text: 'Activo' },
+        { value: 'inactive', text: 'Inactivo' },
+      ],
+    },
+    opportunities: {
+      label: 'Etapa',
+      options: [
+        { value: '', text: 'Todas las etapas' },
+        { value: 'prospeccion', text: 'Prospección' },
+        { value: 'calificacion', text: 'Calificación' },
+        { value: 'propuesta', text: 'Propuesta' },
+        { value: 'negociacion', text: 'Negociación' },
+        { value: 'cierre_ganado', text: 'Cierre Ganado' },
+        { value: 'cierre_perdido', text: 'Cierre Perdido' },
+      ],
+    },
+    followups: {
+      label: 'Tipo de seguimiento',
+      options: [
+        { value: '', text: 'Todos los tipos' },
+        { value: 'call', text: 'Llamada' },
+        { value: 'email', text: 'Email' },
+        { value: 'meeting', text: 'Reunión' },
+        { value: 'other', text: 'Otro' },
+      ],
+    },
+  };
+
+  function updateStatusOptions(reportType) {
+    const config = statusOptions[reportType];
+    if (!config || !statusSelect) return;
+
+    const currentVal = statusSelect.value;
+    statusSelect.innerHTML = '';
+    config.options.forEach(function (opt) {
+      const el = document.createElement('option');
+      el.value = opt.value;
+      el.textContent = opt.text;
+      if (opt.value === currentVal) el.selected = true;
+      statusSelect.appendChild(el);
+    });
+
+    if (statusLabel) statusLabel.textContent = config.label;
+  }
+
+  if (reportTypeSelect) {
+    reportTypeSelect.addEventListener('change', function () {
+      updateStatusOptions(this.value);
+    });
+    // Run on page load to sync with any pre-selected value
+    updateStatusOptions(reportTypeSelect.value);
+  }
+
+  // Scroll to preview section after form submission
+  const previewSection = document.getElementById('preview-section');
+  if (previewSection) {
+    previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+})();
+</script>
+{% endblock %}

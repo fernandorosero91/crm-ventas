@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+{% load crm_components %}
+
+{% block title %}Clientes — CRM{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-[#1e3a5f]">Clientes</h1>
+      <p class="text-sm text-gray-500 mt-1">Gestión de clientes y empresas</p>
+    </div>
+    <a href="{% url 'clientes:client_create' %}"
+       class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-[#1e3a5f]
+              rounded-lg hover:bg-[#152d4a] transition-all duration-300 active:scale-95
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1e3a5f]">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      Nuevo Cliente
+    </a>
+  </div>
+
+  <!-- Search + Filters -->
+  <form method="get" id="filter-form" class="space-y-4">
+
+    <!-- Search bar -->
+    <div class="relative">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/>
+        </svg>
+      </div>
+      <input type="text" name="q" value="{{ search_query }}"
+             placeholder="Buscar por empresa, contacto, email o ID…"
+             class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg
+                    focus:outline-none focus:ring-2 focus:ring-[#2c6e8a] focus:border-[#2c6e8a]
+                    transition-colors duration-200"
+             data-autocomplete-url="{% url 'clientes:client_search' %}"
+             id="client-search-input"
+             autocomplete="off">
+      <!-- Autocomplete dropdown -->
+      <div id="autocomplete-dropdown"
+           class="hidden absolute z-10 w-full mt-1 bg-white border border-gray-200
+                  rounded-lg shadow-lg max-h-60 overflow-y-auto">
+      </div>
+    </div>
+
+    <!-- Advanced filters toggle -->
+    <div>
+      <button type="button"
+              onclick="document.getElementById('advanced-filters').classList.toggle('hidden')"
+              class="inline-flex items-center text-sm text-[#2c6e8a] hover:text-[#1e3a5f]
+                     font-medium transition-colors">
+        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+        </svg>
+        Filtros avanzados
+        {% if filter_status or filter_industry or filter_vendedor or filter_date_from or filter_date_to %}
+          <span class="ml-2 px-2 py-0.5 text-xs bg-[#2c6e8a] text-white rounded-full">Activos</span>
+        {% endif %}
+      </button>
+    </div>
+
+    <!-- Advanced filters panel -->
+    <div id="advanced-filters"
+         class="{% if not filter_status and not filter_industry and not filter_vendedor and not filter_date_from and not filter_date_to %}hidden{% endif %}
+                bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- Status -->
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Estado</label>
+          <select name="status"
+                  class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                         focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]">
+            <option value="">Todos</option>
+            <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Activo</option>
+            <option value="inactive" {% if filter_status == 'inactive' %}selected{% endif %}>Inactivo</option>
+          </select>
+        </div>
+
+        <!-- Industry -->
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Industria</label>
+          <input type="text" name="industry" value="{{ filter_industry }}"
+                 placeholder="Ej: Tecnología"
+                 class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                        focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]">
+        </div>
+
+        {% if request.user.role != 'vendedor' %}
+        <!-- Assigned vendedor -->
+        <div>
+          <label class="block text-xs font-medium text-gray-600 mb-1">Vendedor</label>
+          <select name="assigned_vendedor"
+                  class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                         focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]">
+            <option value="">Todos</option>
+            {% for v in vendedores %}
+            <option value="{{ v.id }}" {% if filter_vendedor == v.id|stringformat:"s" %}selected{% endif %}>
+              {{ v.get_full_name|default:v.username }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        {% endif %}
+
+        <!-- Date range -->
+        <div class="sm:col-span-{% if request.user.role == 'vendedor' %}2{% else %}1{% endif %}">
+          <label class="block text-xs font-medium text-gray-600 mb-1">Fecha de creación</label>
+          <div class="flex gap-2">
+            <input type="date" name="date_from" value="{{ filter_date_from }}"
+                   class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                          focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]">
+            <input type="date" name="date_to" value="{{ filter_date_to }}"
+                   class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                          focus:outline-none focus:ring-2 focus:ring-[#2c6e8a]">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button type="submit"
+                class="px-4 py-2 text-sm font-medium text-white bg-[#2c6e8a] rounded-lg
+                       hover:bg-[#1e3a5f] transition-colors active:scale-95">
+          Aplicar filtros
+        </button>
+        <a href="{% url 'clientes:client_list' %}"
+           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300
+                  rounded-lg hover:bg-gray-50 transition-colors">
+          Limpiar
+        </a>
+      </div>
+    </div>
+
+  </form>
+
+  <!-- Results count -->
+  {% if search_query or filter_status or filter_industry or filter_vendedor or filter_date_from or filter_date_to %}
+  <p class="text-sm text-gray-600">
+    Se encontraron <strong>{{ page_obj.paginator.count }}</strong> cliente(s)
+  </p>
+  {% endif %}
+
+  <!-- Client Table -->
+  {% if clients %}
+  <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              onclick="sortTable(this,'company_name')" data-sort-key="company_name" data-sort-direction="none">
+            <div class="flex items-center gap-1">Empresa
+              <svg class="w-4 h-4 text-gray-400 sort-indicator" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+              </svg>
+            </div>
+          </th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Teléfono</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Industria</th>
+          {% if request.user.role != 'vendedor' %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Vendedor</th>
+          {% endif %}
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+          <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200" id="client-table-body">
+        {% for client in clients %}
+        <tr class="hover:bg-gray-50 transition-colors duration-150">
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">{{ client.company_name }}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{{ client.contact_name }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+            <a href="mailto:{{ client.email }}" class="hover:text-[#2c6e8a] transition-colors">{{ client.email }}</a>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 hidden md:table-cell">{{ client.phone }}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell">
+            {{ client.industry|default:"—" }}
+          </td>
+          {% if request.user.role != 'vendedor' %}
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 hidden lg:table-cell">
+            {{ client.assigned_vendedor.get_full_name|default:client.assigned_vendedor.username|default:"—" }}
+          </td>
+          {% endif %}
+          <td class="px-6 py-4 whitespace-nowrap">
+            {% if client.is_active %}
+              {% badge text="Activo" type="active" size="sm" %}
+            {% else %}
+              {% badge text="Inactivo" type="inactive" size="sm" %}
+            {% endif %}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <div class="flex items-center justify-end gap-2">
+              <a href="{% url 'clientes:client_detail' client.pk %}"
+                 class="text-[#2c6e8a] hover:text-[#1e3a5f] transition-colors"
+                 title="Ver detalle">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+              </a>
+              <a href="{% url 'clientes:client_update' client.pk %}"
+                 class="text-[#1e3a5f] hover:text-[#2c6e8a] transition-colors"
+                 title="Editar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </a>
+              {% if client.is_active %}
+              <button type="button"
+                      onclick="openDeleteModal({{ client.pk }}, '{{ client.company_name|escapejs }}')"
+                      class="text-red-500 hover:text-red-700 transition-colors"
+                      title="Desactivar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+              </button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="mt-4">
+    {% pagination page_obj=page_obj %}
+  </div>
+
+  {% else %}
+  <!-- Empty state -->
+  {% empty_state title="No se encontraron clientes" message="Ajusta los filtros de búsqueda o crea un nuevo cliente para comenzar." cta_text="Nuevo Cliente" cta_url="/clientes/nuevo/" %}
+  {% endif %}
+
+</div>
+
+<!-- Delete confirmation modal -->
+<div id="delete-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"
+       onclick="document.getElementById('delete-modal').classList.add('hidden')"></div>
+  <div class="flex items-center justify-center min-h-screen px-4">
+    <div class="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6 z-10">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+          <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-lg font-semibold text-gray-900">Desactivar cliente</h3>
+          <p class="mt-1 text-sm text-gray-600">
+            ¿Está seguro de que desea desactivar a <strong id="delete-client-name"></strong>?
+            El registro se conservará en modo de solo lectura.
+          </p>
+          <form id="delete-form" method="post" class="mt-4 space-y-3">
+            {% csrf_token %}
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Motivo (opcional)</label>
+              <textarea name="reason" rows="2"
+                        placeholder="Indique el motivo de la desactivación…"
+                        class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-lg
+                               focus:outline-none focus:ring-2 focus:ring-red-400"></textarea>
+            </div>
+            <div class="flex gap-3 justify-end">
+              <button type="button"
+                      onclick="document.getElementById('delete-modal').classList.add('hidden')"
+                      class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300
+                             rounded-lg hover:bg-gray-50 transition-colors">
+                Cancelar
+              </button>
+              <button type="submit"
+                      class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg
+                             hover:bg-red-700 transition-colors active:scale-95">
+                Desactivar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Delete modal
+function openDeleteModal(clientId, clientName) {
+  document.getElementById('delete-client-name').textContent = clientName;
+  document.getElementById('delete-form').action = '/clientes/' + clientId + '/eliminar/';
+  document.getElementById('delete-modal').classList.remove('hidden');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('delete-modal').classList.add('hidden');
+  }
+});
+
+// Autocomplete
+const searchInput = document.getElementById('client-search-input');
+const dropdown = document.getElementById('autocomplete-dropdown');
+let debounceTimer;
+
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    if (q.length < 2) { dropdown.classList.add('hidden'); return; }
+    debounceTimer = setTimeout(() => {
+      fetch('/clientes/buscar/?q=' + encodeURIComponent(q))
+        .then(r => r.json())
+        .then(data => {
+          if (!data.length) { dropdown.classList.add('hidden'); return; }
+          dropdown.innerHTML = data.map(c =>
+            `<div class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                  onclick="selectClient('${c.company_name}')">
+               <span class="font-medium">${c.company_name}</span>
+               <span class="text-gray-400 ml-2">${c.contact_name}</span>
+             </div>`
+          ).join('');
+          dropdown.classList.remove('hidden');
+        });
+    }, 300);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.add('hidden');
+    }
+  });
+}
+
+function selectClient(name) {
+  searchInput.value = name;
+  dropdown.classList.add('hidden');
+  document.getElementById('filter-form').submit();
+}
+
+// Table sort (reuse from table_sort.js pattern)
+function sortTable(headerEl, key) {
+  const tbody = document.getElementById('client-table-body');
+  if (!tbody) return;
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  let dir = headerEl.getAttribute('data-sort-direction');
+  document.querySelectorAll('th[data-sort-key]').forEach(th => {
+    if (th !== headerEl) th.setAttribute('data-sort-direction', 'none');
+  });
+  dir = (dir === 'asc') ? 'desc' : 'asc';
+  headerEl.setAttribute('data-sort-direction', dir);
+  const colIdx = Array.from(headerEl.parentElement.children).indexOf(headerEl);
+  rows.sort((a, b) => {
+    const av = a.children[colIdx]?.textContent.trim() || '';
+    const bv = b.children[colIdx]?.textContent.trim() || '';
+    return dir === 'asc' ? av.localeCompare(bv, 'es') : bv.localeCompare(av, 'es');
+  });
+  rows.forEach(r => tbody.appendChild(r));
+}
+</script>
+{% endblock %}

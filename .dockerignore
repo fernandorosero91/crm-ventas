@@ -1,0 +1,63 @@
+# Version control
+.git
+.gitignore
+
+# Kiro and IDE
+.kiro
+.vscode
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables (keep .env.example)
+.env
+.env.local
+.env.production
+
+# Database
+db.sqlite3
+
+# Node
+node_modules
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Media (managed at runtime, not baked into image)
+media/
+
+# Collected static files (generated during build)
+staticfiles/
+static_collected/
+
+# Tests and coverage
+tests/
+test_*.py
+*_test.py
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Documentation
+README.md
+agents.md
+
+# Docker files (not needed inside container)
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/

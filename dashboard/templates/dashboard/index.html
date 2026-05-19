@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - CRM System{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Page Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-primary">Panel de Control</h1>
+            <p class="mt-1 text-sm text-gray-500">Resumen de indicadores clave de rendimiento</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-secondary">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {{ current_year }}
+            </span>
+        </div>
+    </div>
+
+    <!-- KPI Cards Section -->
+    <section aria-label="Indicadores clave">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+            <!-- Total Clients -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 rounded-full bg-blue-50">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Clientes Activos</p>
+                        <p class="text-2xl font-bold text-primary">{{ kpi.total_clients }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Open Opportunities -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 rounded-full bg-green-50">
+                        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Oportunidades Abiertas</p>
+                        <p class="text-2xl font-bold text-primary">{{ kpi.open_opportunities }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Revenue -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 rounded-full bg-emerald-50">
+                        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Ingresos Totales</p>
+                        <p class="text-2xl font-bold text-primary">${{ kpi.total_revenue|floatformat:0 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversion Rate -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 rounded-full bg-blue-50">
+                        <svg class="w-6 h-6 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Tasa de Conversión</p>
+                        <p class="text-2xl font-bold text-primary">{{ kpi.conversion_rate }}%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Deal Size -->
+            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-200">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 p-3 rounded-full bg-gray-100">
+                        <svg class="w-6 h-6 text-grafito" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Tamaño Promedio</p>
+                        <p class="text-2xl font-bold text-primary">${{ kpi.average_deal_size|floatformat:0 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section aria-label="Gráficos estadísticos">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Monthly Revenue Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-primary mb-4">Ingresos Mensuales</h3>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Opportunities by Stage Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-primary mb-4">Oportunidades por Etapa</h3>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="pipelineChart"></canvas>
+                </div>
+            </div>
+
+            <!-- New Clients per Month Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-primary mb-4">Nuevos Clientes por Mes</h3>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="clientsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Vendedores Chart -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-semibold text-primary mb-4">Top Vendedores</h3>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="vendedoresChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Common chart options
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: {
+                    font: { family: 'Inter, sans-serif', size: 12 },
+                    color: '#4a4a4a'
+                }
+            }
+        }
+    };
+
+    // Fetch and render Monthly Revenue (Bar Chart)
+    fetch('{% url "dashboard:chart_revenue" %}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: data,
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                color: '#4a4a4a'
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#4a4a4a' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+
+    // Fetch and render Opportunities by Stage (Doughnut Chart)
+    fetch('{% url "dashboard:chart_pipeline" %}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('pipelineChart'), {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: 'Inter, sans-serif', size: 12 },
+                                color: '#4a4a4a',
+                                padding: 16
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+    // Fetch and render New Clients per Month (Line Chart)
+    fetch('{% url "dashboard:chart_clients" %}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('clientsChart'), {
+                type: 'line',
+                data: data,
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1,
+                                color: '#4a4a4a'
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            ticks: { color: '#4a4a4a' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+
+    // Fetch and render Top Vendedores (Horizontal Bar Chart)
+    fetch('{% url "dashboard:chart_vendedores" %}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(document.getElementById('vendedoresChart'), {
+                type: 'bar',
+                data: data,
+                options: {
+                    ...commonOptions,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                },
+                                color: '#4a4a4a'
+                            },
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#4a4a4a' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        ...commonOptions.plugins,
+                        legend: { display: false }
+                    }
+                }
+            });
+        });
+});
+</script>
+{% endblock %}
